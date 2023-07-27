@@ -1,22 +1,43 @@
-# next-template
+# LLMentor
 
-A Next.js 13 template for building apps with Radix UI and Tailwind CSS.
+An AI-powered app to help you tackle any problem.
 
-## Usage
+## Setup
 
+Install dependencies
 ```bash
-npx create-next-app -e https://github.com/shadcn/next-template
+npm install  # OR
+pnpm install
 ```
 
-## Features
+Add your OpenAI API key to .env.local in the project root
+```
+# In .env.local
+OPENAI_API_KEY=sk-...
+```
 
-- Next.js 13 App Directory
-- Radix UI Primitives
-- Tailwind CSS
-- Icons from [Lucide](https://lucide.dev)
-- Dark mode with `next-themes`
-- Tailwind CSS class sorting, merging and linting.
+## Running
 
-## License
+Start the app
+```
+npm run dev  # OR
+pnpm dev
+```
 
-Licensed under the [MIT license](https://github.com/shadcn/ui/blob/main/LICENSE.md).
+Go to http://localhost:3000
+
+## Structure
+
+The project uses the [Next.js App router](https://nextjs.org/docs/app)
+
+- API routes are in `app/api/**/route.ts` files
+- Pages are in `app/**/page.tsx` files
+- Components are in `app/components`. The UI components are from [shadcn/ui](https://ui.shadcn.com/)
+- Sources are vector stores are kept in the `data` directory
+
+## API
+
+### /api/chat
+
+This route takes in a `source` parameter and a `p` parameter. The source indicates the source for the vector store.
+If no vector store for the source is found, an error is returned.
