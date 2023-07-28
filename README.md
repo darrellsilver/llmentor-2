@@ -32,7 +32,7 @@ The project uses the [Next.js App router](https://nextjs.org/docs/app)
 
 - API routes are in `app/api/**/route.ts` files
 - Pages are in `app/**/page.tsx` files
-- Components are in `app/components`. The UI components are from [shadcn/ui](https://ui.shadcn.com/)
+- Components are in the `components` directory. The UI components are from [shadcn/ui](https://ui.shadcn.com/)
 - Sources are vector stores are kept in the `data` directory
 
 ## API
