@@ -43,7 +43,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <div className="relative flex min-h-screen flex-col">
               <SiteHeader />
-              <div className="flex flex-1">
+              <div className="flex" style={{ height: 'calc(100vh - 66px)', maxHeight: 'calc(100vh - 66px)' }}>
                 {children}
               </div>
             </div>

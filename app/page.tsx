@@ -4,23 +4,44 @@ import { buttonVariants } from "@/components/ui/button"
 
 export default function IndexPage() {
   return (
-    <section className="container grid items-center gap-6 pb-8 pt-6 md:py-10">
+    <section className="container pb-8 pt-6 md:py-10">
       <div className="flex max-w-[980px] flex-col items-start gap-2">
         <h1 className="text-3xl font-extrabold leading-tight tracking-tighter md:text-4xl">
           LLMentor
         </h1>
-        <p className="max-w-[700px] text-lg text-muted-foreground">
+        <p className="text-lg text-muted-foreground">
           Get unstuck with the help of the world&rsquo;s best authors.
         </p>
       </div>
-      <div className="flex gap-4">
-        <Link
-          href="/books/why-we-work"
-          className={buttonVariants()}
-        >
-          Why we Work
-        </Link>
+
+      <div className="mt-10 max-w-[980px]">
+        <h2 className="text-3xl font-extrabold leading-tight tracking-tighter">
+          Tools
+        </h2>
+        <div className="mt-4">
+          <Link
+            href="/tools/transcript-analysis"
+            className={buttonVariants()}
+          >
+            Transcript Analysis
+          </Link>
+        </div>
       </div>
+
+      <div className="mt-10 max-w-[980px]">
+        <h2 className="text-3xl font-extrabold leading-tight tracking-tighter">
+          Books
+        </h2>
+        <div className="mt-4">
+          <Link
+            href="/books/why-we-work"
+            className={buttonVariants({ variant: 'secondary' })}
+          >
+            Why we Work
+          </Link>
+        </div>
+      </div>
+
     </section>
   )
 }
