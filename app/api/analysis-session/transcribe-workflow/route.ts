@@ -3,7 +3,7 @@ import {
   fetchTranscription,
   startTranscription,
   startTranscriptionForFile,
-  TEST_FILE_URL
+  TEST_FILE_URL,
 } from '@/lib/assemblyai/transcription';
 
 export async function GET(req: NextRequest) {
@@ -19,6 +19,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  console.log(req);
   const formData = await req.formData();
   const file = formData.get('file') as File;
   let expectedSpeakers = Number(formData.get('expectedSpeakers'));

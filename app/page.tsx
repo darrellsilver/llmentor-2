@@ -16,12 +16,26 @@ export default function IndexPage() {
 
       <div className="mt-10 max-w-[980px]">
         <h2 className="text-3xl font-extrabold leading-tight tracking-tighter">
+          Pipelines
+        </h2>
+        <div className="mt-4">
+          <Link
+            href="/pipeline-designer"
+            className={buttonVariants({ variant: 'default' })}
+          >
+            Pipeline Designer
+          </Link>
+        </div>
+      </div>
+
+      <div className="mt-10 max-w-[980px]">
+        <h2 className="text-3xl font-extrabold leading-tight tracking-tighter">
           Tools
         </h2>
         <div className="mt-4">
           <Link
             href="/tools/transcript-analysis"
-            className={buttonVariants()}
+            className={buttonVariants({ variant: 'secondary' })}
           >
             Transcript Analysis
           </Link>
@@ -41,6 +55,7 @@ export default function IndexPage() {
           </Link>
         </div>
       </div>
+
 
     </section>
   )

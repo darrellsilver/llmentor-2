@@ -15,10 +15,10 @@ export async function POST(req: Request) {
     Analyze the following transcript according to the above analysis request:
     {inputText}
   `);
-  const chainA = new LLMChain({ llm: model, prompt });
+  const chain = new LLMChain({ llm: model, prompt });
 
   // The result is an object with a `text` property.
-  const response = await chainA.call({
+  const response = await chain.call({
     analyzerPrompt: analyzerPrompt,
     inputText: inputText.slice(0, 4000),
   });
