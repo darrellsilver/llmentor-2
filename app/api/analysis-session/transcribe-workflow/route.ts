@@ -19,7 +19,6 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  console.log(req);
   const formData = await req.formData();
   const file = formData.get('file') as File;
   let expectedSpeakers = Number(formData.get('expectedSpeakers'));

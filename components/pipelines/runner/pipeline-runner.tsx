@@ -1,50 +1,21 @@
-'use client';
-
 import { Button } from '@/components/ui/button';
 import { Pipeline, PipelineRunnable } from '@/lib/pipelines/types';
 import { useState } from 'react';
 
+export type RunningStatus = 'inactive' | 'running' | 'error' | 'success';
+
 type PipelineRunnerProps = {
-  pipeline: Pipeline
-}
-
-type RunningStatus = 'inactive' | 'running' | 'error' | 'success';
-
-async function runPipeline(pipeline: Pipeline) {
-  const response = await fetch(
-    '/api/pipelines/run-pipeline',
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ pipeline }),
-    }
-  )
-  return await response.json();
+  pipeline: Pipeline;
+  status: RunningStatus;
+  result: string;
+  onClickRun: () => void;
 }
 
 export function PipelineRunner({
- pipeline,
+  status,
+  result,
+  onClickRun,
 }: PipelineRunnerProps) {
-  const [ status, setStatus ] = useState<RunningStatus>('inactive')
-  const [ result, setResult ] = useState('')
-
-  async function onClickRun () {
-    setResult('');
-    setStatus('running');
-
-    const response = await runPipeline(pipeline) as PipelineRunnable;
-
-    if (response.status === 'success') {
-      setResult(response.result);
-      setStatus('success');
-    } else {
-      setResult(response.message);
-      setStatus('error');
-    }
-  }
-
   return (
     <div className="flex h-full flex-col">
       <Button

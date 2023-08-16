@@ -5,9 +5,10 @@ import {
   PipelineNode,
   PipelineNodeRunnable,
   PipelineRunnable,
-  TextNode, OpenAiNode
+  TextNode, OpenAiNode, TranscriptNode
 } from '@/lib/pipelines/types';
 import { getOpenAiCompletion } from '@/lib/openai';
+import { getTranscript } from '@/lib/assemblyai/transcription';
 
 let currentPipeline: Pipeline;
 
@@ -50,6 +51,8 @@ async function runPipelineNode(
       return await runOutputNode(node, nodeResults);
     case 'OpenAiNode':
       return await runOpenAiNode(node, nodeResults);
+    case 'TranscriptNode':
+      return await runTranscriptNode(node, nodeResults);
     default:
       return {
         node,
@@ -126,7 +129,12 @@ async function runOpenAiNode(
   const contextNodes = await Promise.all(node.contextReferences.map(
     async (contextReference) => await getNode(contextReference)
   ));
-  const contextResults = await Promise.all(contextNodes.map(
+
+  // Sort by y position here (top to bottom)
+  // TODO Move to client (currently only references are available there)
+  const sortedContextNodes = contextNodes.sort((a, b) => a.position.y - b.position.y);
+
+  const contextResults = await Promise.all(sortedContextNodes.map(
     async (contextNode) => await runPipelineNode(contextNode, nodeResults)
   ));
 
@@ -183,6 +191,61 @@ async function runOpenAiNode(
     status: 'success',
     result: openAiResult,
   };
+
+  nodeResults.push(result);
+
+  return result;
+}
+
+async function runTranscriptNode(
+  node: TranscriptNode,
+  nodeResults: PipelineNodeRunnable[],
+) {
+  const transcriptId = node.transcriptId;
+
+  if (!transcriptId) {
+    const result: PipelineNodeRunnable = {
+      node,
+      status: 'error',
+      message: 'No Transcript set on Transcript node'
+    };
+
+    nodeResults.push(result);
+
+    return result;
+  }
+
+  const transcript = await getTranscript(transcriptId);
+
+  if (!transcript) {
+    const result: PipelineNodeRunnable = {
+      node,
+      status: 'error',
+      message: `No Transcript found for transcript id "${transcriptId}"`,
+    };
+
+    nodeResults.push(result);
+
+    return result;
+  }
+
+  if (!transcript.utterances) {
+    const result: PipelineNodeRunnable = {
+      node,
+      status: 'error',
+      message: `No utterances found on transcript "${transcriptId}"`,
+    };
+
+    nodeResults.push(result);
+
+    return result;
+  }
+
+  const result: PipelineNodeRunnable = {
+    node,
+    status: 'success',
+    result: transcript.utterances.map(u => `Speaker ${u.speaker}: ${u.text}`).join('\n'),
+  }
 
   nodeResults.push(result);
 

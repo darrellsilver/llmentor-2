@@ -12,16 +12,12 @@ import ReactFlow, {
   Panel,
   Node,
   Edge,
-  Connection,
+  Connection, NodeChange, OnNodesChange, OnEdgesChange,
 } from 'reactflow';
 
 import 'reactflow/dist/style.css';
-import {
-  OpenAiFlowNode,
-  OutputFlowNode,
-  TextFlowNode,
-} from '@/components/pipelines/pipeline-graph/nodes';
-import { Pipeline, PipelineNode } from '@/lib/pipelines/types';
+import { nodeTypes } from '@/components/pipelines/pipeline-graph/nodes';
+import { Pipeline, PipelineNode, PipelineRunnable } from '@/lib/pipelines/types';
 import {
   getFlowDataFromPipelineNodes,
   getPipelineNodesFromFlowData
@@ -29,17 +25,14 @@ import {
 
 import { PipelineEditorTopbar } from '@/components/pipelines/editor/pipeline-editor-topbar';
 import { Card } from '@/components/ui/card';
-import { PipelineRunner } from '@/components/pipelines/runner';
-import { savePipeline } from '@/components/pipelines/api';
+import { RunningStatus, PipelineRunner } from '@/components/pipelines/runner';
+import { savePipeline, runPipeline } from '@/components/pipelines/api';
+import { TranscriptList } from '@/components/pipelines/api/fetchTranscriptList';
 
-const nodeTypes = {
-  OutputNode: OutputFlowNode,
-  TextNode: TextFlowNode,
-  OpenAiNode: OpenAiFlowNode,
-}
 
 type PipelineGraphProps = {
   pipeline: Pipeline;
+  transcripts: TranscriptList;
 }
 
 const singleConnectionPorts = [
@@ -60,10 +53,16 @@ function shouldClearEdges(edge: Edge) : boolean {
 
 export function PipelineFlow({
   pipeline,
+  transcripts,
 }: PipelineGraphProps) {
   const [ currentPipeline, setCurrentPipeline ] = useState(pipeline);
-  const [ isRunnerOpen, setIsRunnerOpen ] = useState(false);
+  // TODO Find out how to derive this accurately (the onNodes/EdgesChange callbacks don't work for this)
+  const [ isDirty, setIsDirty ] = useState(false);
   const [ isSaving, setIsSaving ] = useState(false);
+  const [ isRunnerOpen, setIsRunnerOpen ] = useState(false);
+  const [ runningStatus, setRunningStatus ] = useState<RunningStatus>('inactive')
+  const [ runResult, setRunResult ] = useState('')
+
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
@@ -110,10 +109,42 @@ export function PipelineFlow({
     await savePipeline(newPipeline);
 
     setIsSaving(false);
+    setIsDirty(false);
+  }
+
+  const onNodesChangePatched: OnNodesChange = (changes) => {
+    onNodesChange(changes);
+    setIsDirty(true);
+  }
+
+  const onEdgesChangePatched: OnEdgesChange = (changes) => {
+    onEdgesChange(changes);
+    setIsDirty(true);
   }
 
   async function toggleIsRunnerOpen() {
     setIsRunnerOpen(!isRunnerOpen);
+  }
+
+  async function onClickRun () {
+    setRunResult('');
+    setRunningStatus('running');
+
+    // Send the pipeline instead of the saved one
+    const pipelineToRun = {
+      ...currentPipeline,
+      nodes: getPipelineNodesFromFlowData(nodes, edges),
+    }
+
+    const response = await runPipeline(pipelineToRun);
+
+    if (response.status === 'success') {
+      setRunResult(response.result);
+      setRunningStatus('success');
+    } else {
+      setRunResult(response.message);
+      setRunningStatus('error');
+    }
   }
 
   return (
@@ -121,15 +152,20 @@ export function PipelineFlow({
       <ReactFlow
         nodes={nodes}
         edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
+        onNodesChange={onNodesChangePatched}
+        onEdgesChange={onEdgesChangePatched}
         onConnect={onConnect}
         nodeTypes={nodeTypes}
       >
         {isRunnerOpen && (
           <Panel position="top-right">
             <Card className="mt-20 h-[600px] w-[450px] p-4">
-              <PipelineRunner pipeline={currentPipeline} />
+              <PipelineRunner
+                pipeline={currentPipeline}
+                status={runningStatus}
+                result={runResult}
+                onClickRun={onClickRun}
+              />
             </Card>
           </Panel>
         )}
@@ -139,7 +175,9 @@ export function PipelineFlow({
           position="top-left"
         >
           <PipelineEditorTopbar
-            pipeline={pipeline}
+            pipeline={currentPipeline}
+            transcripts={transcripts}
+            isDirty={isDirty}
             onAddNode={onAddNode}
             onSave={onSave}
             onToggleRunner={toggleIsRunnerOpen}

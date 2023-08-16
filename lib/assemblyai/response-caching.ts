@@ -21,7 +21,16 @@ export async function cacheResponse(
   return response;
 }
 
+export async function getCachedResponsePaths(): Promise<string[]> {
+  const dataDir = getDataDir();
+  return fs.readdirSync(dataDir);
+}
+
 function getCachedResponsePath(id: string): string {
-  const dataDir = path.resolve(process.cwd(), 'data/assemblyai');
+  const dataDir = getDataDir()
   return `${dataDir}/${id.split('.')[0]}.json`
+}
+
+function getDataDir() {
+  return path.resolve(process.cwd(), 'data/assemblyai');
 }

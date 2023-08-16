@@ -1,4 +1,4 @@
-import { NodeReference, NodeType, OpenAiNode, OutputNode, PipelineNode } from '@/lib/pipelines/types';
+import { NodeReference, NodeType, OpenAiNode, OutputNode, PipelineNode, TranscriptNode } from '@/lib/pipelines/types';
 import { Edge, Node } from 'reactflow';
 
 // Pipeline to Flow
@@ -24,7 +24,6 @@ function getFlowNodeFromPipelineNode(pipelineNode: PipelineNode) : Node<Pipeline
 
 function getFlowEdgesFromPipelineNode(pipelineNode: PipelineNode) : Edge[] {
   switch (pipelineNode.type) {
-    case NodeType.TextNode: return [];
     case NodeType.OutputNode: return getFlowEdgesFromOutputNode(pipelineNode);
     case NodeType.OpenAiNode: return getFlowEdgesFromOpenAiNode(pipelineNode);
     default: return [];
@@ -85,17 +84,23 @@ export function getPipelineNodesFromFlowData(nodes: Node<PipelineNode>[], edges:
 function getPipelineNodeFromFlowData(node: Node<PipelineNode>, edges: Edge[]) {
   // TODO Find some type-safe way to do these passes, needing to cast here is confusing
   switch (node.data.type) {
+    // Nodes that don't have node reference edges
     case NodeType.TextNode:
-      return {
-        ...node.data,
-        position: node.position,
-      };
+    case NodeType.TranscriptNode:
+      return getDataNodeFromFlowData(node);
     case NodeType.OutputNode:
       return getOutputNodeFromFlowData(node as Node<OutputNode>, edges);
     case NodeType.OpenAiNode:
       return getOpenAiNodeFromFlowData(node as Node<OpenAiNode>, edges);
     default:
       throw new Error("Type not recognized!")
+  }
+}
+
+function getDataNodeFromFlowData(node: Node<PipelineNode>): PipelineNode {
+  return {
+    ...node.data,
+    position: node.position,
   }
 }
 
@@ -114,7 +119,7 @@ function getOpenAiNodeFromFlowData(node: Node<OpenAiNode>, edges: Edge[]): OpenA
   return {
     ...node.data,
     position: node.position,
-    contextReferences: contextEdges.map(edge => nodeRefFromFlowId(edge.target)),
+    contextReferences: contextEdges.map(edge => nodeRefFromFlowId(edge.target)).sort(),
     promptReference: promptEdge ? nodeRefFromFlowId(promptEdge.target) : null,
   }
 }

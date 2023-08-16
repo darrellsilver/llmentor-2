@@ -9,6 +9,7 @@ export enum NodeType {
   TextNode = 'TextNode',
   OutputNode = 'OutputNode',
   OpenAiNode = 'OpenAiNode',
+  TranscriptNode = 'TranscriptNode',
 }
 
 export type PipelineRunnable = {
@@ -45,7 +46,8 @@ export type NodeReference = {
 export type PipelineNode = (
   TextNode |
   OutputNode |
-  OpenAiNode
+  OpenAiNode |
+  TranscriptNode
 );
 
 type BaseNodeType = {
@@ -68,4 +70,9 @@ export type OpenAiNode = BaseNodeType & {
   temperature: number;
   promptReference: null | NodeReference;
   contextReferences: NodeReference[];
+};
+
+export type TranscriptNode = BaseNodeType & {
+  type: NodeType.TranscriptNode;
+  transcriptId: string;
 };
