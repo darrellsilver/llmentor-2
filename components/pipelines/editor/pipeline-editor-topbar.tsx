@@ -2,7 +2,6 @@ import { Button, buttonVariants } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { NodeType, Pipeline, PipelineNode } from '@/lib/pipelines/types';
 import { Node } from 'reactflow';
-import { useState } from 'react';
 import { v4 } from 'uuid';
 import {
   DropdownMenu,
@@ -29,9 +28,6 @@ export function PipelineEditorTopbar({
   onToggleRunner,
   isSaving,
 }: PipelineEditorTopbarProps) {
-  const [ newTextNodeContent, setNewTextNodeContent ] = useState('')
-  const [ transcriptId, setTranscriptId ] = useState('')
-
   function onClickAddTextNode() {
     console.log("Adding Text node...");
 
@@ -47,13 +43,11 @@ export function PipelineEditorTopbar({
         type: nodeType,
         id: nodeId,
         position: nodePosition,
-        content: newTextNodeContent,
+        content: '',
       }
     }
 
     onAddNode(node);
-
-    setNewTextNodeContent('')
   }
 
   function onClickAddOutputNode() {

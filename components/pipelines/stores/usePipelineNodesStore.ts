@@ -21,6 +21,8 @@ export type PipelineNodesState = {
   setOpenAiNode: (node: OpenAiNode) => void;
   setOutputNode: (node: OutputNode) => void;
 
+  getPropertyNodes: () => PipelineNode[];
+  getAllNodes: () => PipelineNode[];
   getNode: (nodeRef: NodeReference) => PipelineNode | null;
   getTextNode: (nodeId: string) => TextNode | null,
   getTranscriptNode: (nodeId: string) => TranscriptNode | null,
@@ -82,6 +84,27 @@ export const usePipelineNodesStore = create<PipelineNodesState>((set, get) => ({
   })),
 
   // Getting nodes
+
+  getPropertyNodes: (): PipelineNode[] => {
+    return get()
+      .getAllNodes()
+      .filter(node => node.isProperty);
+  },
+
+  getAllNodes: (): PipelineNode[] => {
+    const {
+      textNodesById,
+      transcriptNodesById,
+      openAiNodesById,
+      outputNodesById,
+    } = get();
+
+    return ([] as PipelineNode[])
+      .concat(Object.values(textNodesById))
+      .concat(Object.values(transcriptNodesById))
+      .concat(Object.values(openAiNodesById))
+      .concat(Object.values(outputNodesById));
+  },
 
   getNode: (nodeRef: NodeReference): PipelineNode | null => {
     const state = get();

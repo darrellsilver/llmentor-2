@@ -41,6 +41,31 @@ export type NodeReference = {
   type: NodeType,
 };
 
+// Properties
+
+export type PipelineProperty = (
+  TextProperty |
+  TranscriptProperty
+);
+
+type BasePropertyType = {
+  id: string;
+};
+
+export type TextProperty = BasePropertyType & (
+  Pick<TextNode,
+    'type' |
+    'content'
+  >
+);
+
+export type TranscriptProperty = BasePropertyType & (
+  Pick<TranscriptNode,
+    'type' |
+    'transcriptId'
+  >
+);
+
 // Nodes
 
 export type PipelineNode = (
@@ -52,6 +77,8 @@ export type PipelineNode = (
 
 type BaseNodeType = {
   id: string;
+  name?: string;
+  isProperty?: boolean;
   position: { x: number, y: number };
 }
 

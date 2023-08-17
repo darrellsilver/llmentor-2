@@ -1,21 +1,27 @@
 import {
   NodeReference,
+  NodeType,
+  OpenAiNode,
   OutputNode,
   Pipeline,
   PipelineNode,
   PipelineNodeRunnable,
+  PipelineProperty,
   PipelineRunnable,
-  TextNode, OpenAiNode, TranscriptNode
+  TextNode, TextProperty,
+  TranscriptNode, TranscriptProperty
 } from '@/lib/pipelines/types';
 import { getOpenAiCompletion } from '@/lib/openai';
 import { getTranscript } from '@/lib/assemblyai/transcription';
 
 let currentPipeline: Pipeline;
 
-export async function runPipeline(pipeline: Pipeline): Promise<PipelineRunnable> {
-  currentPipeline = pipeline;
+export async function runPipeline(pipeline: Pipeline, properties: PipelineProperty[] = []): Promise<PipelineRunnable> {
+  // TODO Create a pipeline runnable object with all pending nodes and use that instead
+  currentPipeline = getMergedPipeline(pipeline, properties);
 
-  const outputNode = pipeline.nodes.find(n => n.type === 'OutputNode');
+  // Start at the output node
+  const outputNode = currentPipeline.nodes.find(n => n.type === 'OutputNode');
 
   if (!outputNode) {
     return {
@@ -38,6 +44,29 @@ export async function runPipeline(pipeline: Pipeline): Promise<PipelineRunnable>
     status: 'error',
     message: result.status === 'error' ? result.message : 'Unknown error',
   };
+}
+
+function getMergedPipeline(pipeline: Pipeline, properties: PipelineProperty[]) {
+  const mergedPipeline = {
+    ...pipeline,
+    nodes: [ ...pipeline.nodes ],
+  }
+
+  for (const property of properties) {
+    const pipelineNode = mergedPipeline.nodes.find(node => node.type === property.type && node.id === property.id);
+    if (!pipelineNode) continue;
+
+    switch (pipelineNode.type) {
+      case NodeType.TextNode:
+        pipelineNode.content = (property as TextProperty).content;
+        break;
+      case NodeType.TranscriptNode:
+        pipelineNode.transcriptId = (property as TranscriptProperty).transcriptId;
+        break;
+    }
+  }
+
+  return mergedPipeline;
 }
 
 async function runPipelineNode(

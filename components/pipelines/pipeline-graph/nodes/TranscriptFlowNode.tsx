@@ -4,6 +4,7 @@ import { TranscriptNode } from '@/lib/pipelines/types';
 import { usePipelineNodesStore } from '@/components/pipelines/stores';
 import { useTranscriptsStore } from '@/components/pipelines/stores/useTranscriptsStore';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
 
 export function TranscriptFlowNode({
  data,
@@ -19,15 +20,45 @@ export function TranscriptFlowNode({
     setTranscriptNode: state.setTranscriptNode,
   }));
 
+  function setIsProperty(isProperty: boolean) {
+    if (!node) return;
+    setTranscriptNode({ ...node, isProperty });
+  }
+
+  function setName(name: string) {
+    if (!node) return;
+    setTranscriptNode({ ...node, name });
+  }
+
   function setTranscriptId(transcriptId: string) {
     if (!node) return;
     setTranscriptNode({ ...node, transcriptId });
   }
 
+  if (!node) {
+    return (
+      <FlowNode
+        title="Transcript"
+        pipelineNode={node}
+        canBeProperty={false}
+        data={data}
+        {...props}
+      >
+        No Transcript node found
+      </FlowNode>
+    );
+  }
+
   return (
-    <FlowNode title="Transcript" data={data} {...props}>
+    <FlowNode
+      title="Transcript"
+      pipelineNode={node}
+      canBeProperty={true}
+      data={data}
+      {...props}
+    >
       <Select
-        value={node?.transcriptId}
+        value={node?.transcriptId || undefined}
         onValueChange={setTranscriptId}
       >
         <SelectTrigger className="w-64">

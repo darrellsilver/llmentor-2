@@ -5,7 +5,6 @@ import { useState } from 'react';
 export type RunningStatus = 'inactive' | 'running' | 'error' | 'success';
 
 type PipelineRunnerProps = {
-  pipeline: Pipeline;
   status: RunningStatus;
   result: string;
   onClickRun: () => void;
