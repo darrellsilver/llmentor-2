@@ -2,16 +2,18 @@ import { Button, buttonVariants } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { NodeType, Pipeline, PipelineNode } from '@/lib/pipelines/types';
 import { Node } from 'reactflow';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Textarea } from '@/components/ui/textarea';
 import { useState } from 'react';
 import { v4 } from 'uuid';
-import { TranscriptList } from '@/components/pipelines/api/fetchTranscriptList';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
 
 type PipelineEditorTopbarProps = {
   pipeline: Pipeline;
-  transcripts: TranscriptList,
   isDirty: boolean;
   onAddNode: (node: Node<PipelineNode>) => void;
   onSave: () => void;
@@ -21,7 +23,6 @@ type PipelineEditorTopbarProps = {
 
 export function PipelineEditorTopbar({
   pipeline,
-  transcripts,
   isDirty,
   onAddNode,
   onSave,
@@ -32,12 +33,10 @@ export function PipelineEditorTopbar({
   const [ transcriptId, setTranscriptId ] = useState('')
 
   function onClickAddTextNode() {
-    if (!newTextNodeContent) return;
-
-    console.log("Adding text node...");
+    console.log("Adding Text node...");
 
     const nodeType = NodeType.TextNode
-    const nodeId = Math.random().toString();
+    const nodeId = v4();
     const nodePosition = { x: 100, y: 250 };
 
     const node: Node<PipelineNode> = {
@@ -58,10 +57,10 @@ export function PipelineEditorTopbar({
   }
 
   function onClickAddOutputNode() {
-    console.log("Adding output node...");
+    console.log("Adding Output node...");
 
     const nodeType = NodeType.OutputNode
-    const nodeId = Math.random().toString();
+    const nodeId = v4();
     const nodePosition = { x: 100, y: 250 };
 
     const node: Node<PipelineNode> = {
@@ -80,10 +79,10 @@ export function PipelineEditorTopbar({
   }
 
   function onClickAddOpenAiNode() {
-    console.log("Adding output node...");
+    console.log("Adding OpenAi node...");
 
     const nodeType = NodeType.OpenAiNode
-    const nodeId = Math.random().toString();
+    const nodeId = v4();
     const nodePosition = { x: 100, y: 250 };
 
     const node: Node<PipelineNode> = {
@@ -104,9 +103,7 @@ export function PipelineEditorTopbar({
   }
 
   function onClickAddTranscriptNode() {
-    if (!transcriptId) return;
-
-    console.log("Adding transcript node...");
+    console.log("Adding Transcript node...");
 
     const nodeType = NodeType.TranscriptNode
     const nodeId = v4();
@@ -120,7 +117,7 @@ export function PipelineEditorTopbar({
         type: nodeType,
         id: nodeId,
         position: nodePosition,
-        transcriptId: transcriptId,
+        transcriptId: null,
       }
     }
 
@@ -129,70 +126,23 @@ export function PipelineEditorTopbar({
 
   return (
     <Card className="flex h-[65px] w-full items-center justify-between border-b px-3">
-      <Popover>
-        <PopoverTrigger className={`${buttonVariants({ variant: 'default' })} w-48`}>
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          className={`${buttonVariants({ variant: 'default' })} w-48`}
+        >
           Add Node
-        </PopoverTrigger>
-        <PopoverContent>
-          <Textarea
-            value={newTextNodeContent}
-            onChange={e => setNewTextNodeContent(e.target.value)}
-          />
-          <Button
-            className="mt-2 w-full"
-            variant="outline"
-            onClick={onClickAddTextNode}
-          >
-            Add Text Node
-          </Button>
-
-          <div className="mt-4 border-t border-gray-200 dark:border-gray-800"/>
-
-          <Select
-            value={transcriptId}
-            onValueChange={setTranscriptId}
-          >
-            <SelectTrigger className="mt-4 w-full">
-              <SelectValue placeholder="Transcript" />
-            </SelectTrigger>
-            <SelectContent>
-              {(transcripts || []).map(({ id }) => (
-                <SelectItem key={id} value={id}>
-                  {id}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button
-            className="mt-4 w-full"
-            variant="outline"
-            onClick={onClickAddTranscriptNode}
-          >
-            Add Transcript Node
-          </Button>
-
-          <div className="mt-4 border-t border-gray-200 dark:border-gray-800"/>
-
-          <Button
-            className="mt-4 w-full"
-            variant="outline"
-            onClick={onClickAddOpenAiNode}
-          >
-            Add OpenAi Node
-          </Button>
-
-          <div className="mt-4 border-t border-gray-200 dark:border-gray-800"/>
-
-          <Button
-            className="mt-4 w-full"
-            variant="outline"
-            onClick={onClickAddOutputNode}
-          >
-            Add Output Node
-          </Button>
-
-        </PopoverContent>
-      </Popover>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent
+          className="w-48"
+        >
+          <DropdownMenuItem onClick={onClickAddTextNode}>Text</DropdownMenuItem>
+          <DropdownMenuItem onClick={onClickAddTranscriptNode}>Transcript</DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={onClickAddOpenAiNode}>OpenAi</DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={onClickAddOutputNode}>Output</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
       <h1 className="text-xl font-bold">
         {pipeline.title}
       </h1>

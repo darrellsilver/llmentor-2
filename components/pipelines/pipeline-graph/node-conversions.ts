@@ -1,5 +1,7 @@
 import { NodeReference, NodeType, OpenAiNode, OutputNode, PipelineNode, TranscriptNode } from '@/lib/pipelines/types';
 import { Edge, Node } from 'reactflow';
+import { usePipelineNodesStore } from '@/components/pipelines/stores';
+import { PipelineNodesState } from '@/components/pipelines/stores/usePipelineNodesStore';
 
 // Pipeline to Flow
 
@@ -78,46 +80,46 @@ function getFlowEdgesFromOpenAiNode(openAiNode: OpenAiNode): Edge[] {
 // Flow to Pipeline
 
 export function getPipelineNodesFromFlowData(nodes: Node<PipelineNode>[], edges: Edge[]) : PipelineNode[] {
-  return nodes.map(node => getPipelineNodeFromFlowData(node, edges));
+  const state = usePipelineNodesStore.getState();
+  return nodes.map(node => getPipelineNodeFromFlowData(state, node, edges));
 }
 
-function getPipelineNodeFromFlowData(node: Node<PipelineNode>, edges: Edge[]) {
-  // TODO Find some type-safe way to do these passes, needing to cast here is confusing
+function getPipelineNodeFromFlowData(state: PipelineNodesState, node: Node<PipelineNode>, edges: Edge[]) {
   switch (node.data.type) {
     // Nodes that don't have node reference edges
     case NodeType.TextNode:
     case NodeType.TranscriptNode:
-      return getDataNodeFromFlowData(node);
+      return getDataNodeFromFlowData(state.getNode(node.data)!, node);
     case NodeType.OutputNode:
-      return getOutputNodeFromFlowData(node as Node<OutputNode>, edges);
+      return getOutputNodeFromFlowData(state.getOutputNode(node.data.id)!, node, edges);
     case NodeType.OpenAiNode:
-      return getOpenAiNodeFromFlowData(node as Node<OpenAiNode>, edges);
+      return getOpenAiNodeFromFlowData(state.getOpenAiNode(node.data.id)!, node, edges);
     default:
-      throw new Error("Type not recognized!")
+      throw new Error(`Node type not recognized: ${node.type}`);
   }
 }
 
-function getDataNodeFromFlowData(node: Node<PipelineNode>): PipelineNode {
+function getDataNodeFromFlowData(pipelineNode: PipelineNode, node: Node<PipelineNode>): PipelineNode {
   return {
-    ...node.data,
+    ...pipelineNode,
     position: node.position,
   }
 }
 
-function getOutputNodeFromFlowData(node: Node<OutputNode>, edges: Edge[]): OutputNode {
+function getOutputNodeFromFlowData(outputNode: OutputNode, node: Node<PipelineNode>, edges: Edge[]): OutputNode {
   const inputEdge = edges.find(e => e.source === node.id && e.sourceHandle === 'input');
   return {
-    ...node.data,
+    ...outputNode,
     position: node.position,
     inputReference: inputEdge ? nodeRefFromFlowId(inputEdge.target) : null,
   }
 }
 
-function getOpenAiNodeFromFlowData(node: Node<OpenAiNode>, edges: Edge[]): OpenAiNode {
+function getOpenAiNodeFromFlowData(openAiNode: OpenAiNode, node: Node<PipelineNode>, edges: Edge[]): OpenAiNode {
   const contextEdges = edges.filter(e => e.source === node.id && e.sourceHandle === 'context');
   const promptEdge = edges.find(e => e.source === node.id && e.sourceHandle === 'prompt');
   return {
-    ...node.data,
+    ...openAiNode,
     position: node.position,
     contextReferences: contextEdges.map(edge => nodeRefFromFlowId(edge.target)).sort(),
     promptReference: promptEdge ? nodeRefFromFlowId(promptEdge.target) : null,

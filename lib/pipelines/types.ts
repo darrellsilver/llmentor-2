@@ -74,5 +74,5 @@ export type OpenAiNode = BaseNodeType & {
 
 export type TranscriptNode = BaseNodeType & {
   type: NodeType.TranscriptNode;
-  transcriptId: string;
+  transcriptId: string | null;
 };

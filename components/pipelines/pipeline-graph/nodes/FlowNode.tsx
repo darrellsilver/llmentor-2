@@ -13,9 +13,9 @@ export function FlowNode({
   selected,
 }: BaseNodeProps) {
   return (
-    <Card className={`max-w-[400px] ${selected ? 'border-blue-500' : ''}`}>
+    <Card className={`h-full w-full ${selected ? 'border-blue-500' : ''}`}>
       <h3 className="rounded-t-md bg-gray-100 px-2 py-1 text-sm font-bold dark:bg-blue-950">{title}</h3>
-      <div className={`p-2 px-4`}>
+      <div className={`p-2`}>
         {children}
       </div>
     </Card>

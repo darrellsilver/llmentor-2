@@ -28,11 +28,11 @@ import { Card } from '@/components/ui/card';
 import { RunningStatus, PipelineRunner } from '@/components/pipelines/runner';
 import { savePipeline, runPipeline } from '@/components/pipelines/api';
 import { TranscriptList } from '@/components/pipelines/api/fetchTranscriptList';
+import { usePipelineNodesStore } from '@/components/pipelines/stores';
 
 
 type PipelineGraphProps = {
   pipeline: Pipeline;
-  transcripts: TranscriptList;
 }
 
 const singleConnectionPorts = [
@@ -53,7 +53,6 @@ function shouldClearEdges(edge: Edge) : boolean {
 
 export function PipelineFlow({
   pipeline,
-  transcripts,
 }: PipelineGraphProps) {
   const [ currentPipeline, setCurrentPipeline ] = useState(pipeline);
   // TODO Find out how to derive this accurately (the onNodes/EdgesChange callbacks don't work for this)
@@ -90,6 +89,9 @@ export function PipelineFlow({
   );
 
   function onAddNode(node: Node<PipelineNode>) {
+    // Add the node to the store
+    usePipelineNodesStore.getState().setNode(node.data);
+
     setNodes([...nodes, node]);
   }
 
@@ -176,7 +178,6 @@ export function PipelineFlow({
         >
           <PipelineEditorTopbar
             pipeline={currentPipeline}
-            transcripts={transcripts}
             isDirty={isDirty}
             onAddNode={onAddNode}
             onSave={onSave}
