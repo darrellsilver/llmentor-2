@@ -1,16 +1,16 @@
 'use client';
 
-import { v4 } from 'uuid';
 import { Pipeline } from '@/lib/pipelines/types';
 import { savePipeline } from '@/components/pipelines/api';
 import { FormEventHandler, useState } from 'react';
 import { useRouter } from 'next/navigation'
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { getUuid } from '@/components/pipelines/common/getUuid';
 
 async function createNewPipeline(title: string): Promise<Pipeline> {
   const pipeline: Pipeline = {
-    id: v4(),
+    id: getUuid(),
     title,
     nodes: [],
   }

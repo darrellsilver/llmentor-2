@@ -35,15 +35,17 @@ function getFlowEdgesFromPipelineNode(pipelineNode: PipelineNode) : Edge[] {
 function getFlowEdgesFromOutputNode(outputNode: OutputNode): Edge[] {
   const edges: Edge[] = [];
 
-  if (outputNode.inputReference) {
+  const nodeFlowId = flowIdFromNodeRef(outputNode)
+
+  outputNode.inputReferences?.forEach(inputNodeRef => {
     edges.push({
       id: `OutputNode-${outputNode.id}-input`,
-      source: flowIdFromNodeRef(outputNode),
+      source: nodeFlowId,
       sourceHandle: 'input',
-      target: flowIdFromNodeRef(outputNode.inputReference),
+      target: flowIdFromNodeRef(inputNodeRef),
       targetHandle: 'output'
     })
-  }
+  })
 
   return edges;
 }
@@ -107,11 +109,11 @@ function getDataNodeFromFlowData(pipelineNode: PipelineNode, node: Node<Pipeline
 }
 
 function getOutputNodeFromFlowData(outputNode: OutputNode, node: Node<PipelineNode>, edges: Edge[]): OutputNode {
-  const inputEdge = edges.find(e => e.source === node.id && e.sourceHandle === 'input');
+  const inputEdges = edges.filter(e => e.source === node.id && e.sourceHandle === 'input');
   return {
     ...outputNode,
     position: node.position,
-    inputReference: inputEdge ? nodeRefFromFlowId(inputEdge.target) : null,
+    inputReferences: inputEdges.map(inputEdge => nodeRefFromFlowId(inputEdge.target)),
   }
 }
 

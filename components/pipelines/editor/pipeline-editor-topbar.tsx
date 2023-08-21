@@ -2,7 +2,7 @@ import { Button, buttonVariants } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { NodeType, Pipeline, PipelineNode } from '@/lib/pipelines/types';
 import { Node } from 'reactflow';
-import { v4 } from 'uuid';
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,6 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
+import { getUuid } from '@/components/pipelines/common/getUuid';
 
 type PipelineEditorTopbarProps = {
   pipeline: Pipeline;
@@ -32,7 +33,7 @@ export function PipelineEditorTopbar({
     console.log("Adding Text node...");
 
     const nodeType = NodeType.TextNode
-    const nodeId = v4();
+    const nodeId = getUuid();
     const nodePosition = { x: 100, y: 250 };
 
     const node: Node<PipelineNode> = {
@@ -54,7 +55,7 @@ export function PipelineEditorTopbar({
     console.log("Adding Output node...");
 
     const nodeType = NodeType.OutputNode
-    const nodeId = v4();
+    const nodeId = getUuid();
     const nodePosition = { x: 100, y: 250 };
 
     const node: Node<PipelineNode> = {
@@ -76,7 +77,7 @@ export function PipelineEditorTopbar({
     console.log("Adding OpenAi node...");
 
     const nodeType = NodeType.OpenAiNode
-    const nodeId = v4();
+    const nodeId = getUuid();
     const nodePosition = { x: 100, y: 250 };
 
     const node: Node<PipelineNode> = {
@@ -100,7 +101,7 @@ export function PipelineEditorTopbar({
     console.log("Adding Transcript node...");
 
     const nodeType = NodeType.TranscriptNode
-    const nodeId = v4();
+    const nodeId = getUuid();
     const nodePosition = { x: 100, y: 250 };
 
     const node: Node<PipelineNode> = {

@@ -1,14 +1,26 @@
 import { NodeType, Pipeline } from '@/lib/pipelines/types';
-import { pipe } from 'next/dist/build/webpack/config/utils';
 import path from 'path';
 import fs from 'fs';
 
-export async function getPipeline(pipelineId: string) {
-  const pipelines = await getPipelines();
-  return pipelines[pipelineId];
+export async function getPipeline(pipelineId: string): Promise<Pipeline | null> {
+  const pipelineData = await getPipelines();
+  const pipeline = pipelineData[pipelineId] || null;
+  if (!pipeline) return pipeline;
+
+  // Ensure backwards compatability with single input
+  pipeline.nodes.forEach((node) => {
+    if (node.type === NodeType.OutputNode && !node.inputReferences) {
+      node.inputReferences = []
+      if (node.inputReference) {
+        node.inputReferences.push(node.inputReference)
+      }
+    }
+  })
+
+  return pipelineData[pipelineId] || null;
 }
 
-export async function getPipelines() {
+export async function getPipelines() : Promise<{ [key: string]: Pipeline }> {
   const filePath = getFilePath();
   if (!fs.existsSync(filePath)) {
     return {};
@@ -18,17 +30,17 @@ export async function getPipelines() {
 }
 
 export async function savePipeline(pipeline: Pipeline) {
-  const pipelines = await getPipelines();
+  const pipelineData = await getPipelines();
 
-  pipelines[pipeline.id] = pipeline;
+  pipelineData[pipeline.id] = pipeline;
 
-  await savePipelines(pipelines);
+  await savePipelineData(pipelineData);
 
   return pipeline;
 }
 
-export async function savePipelines(pipelines: { [key: string]: Pipeline }) {
-  fs.writeFileSync(getFilePath(), JSON.stringify(pipelines))
+export async function savePipelineData(pipelines: { [key: string]: Pipeline }) {
+  fs.writeFileSync(getFilePath(), JSON.stringify(pipelines));
 }
 
 function getFilePath() {

@@ -90,6 +90,7 @@ export type TextNode = BaseNodeType & {
 export type OutputNode = BaseNodeType & {
   type: NodeType.OutputNode;
   inputReference: null | NodeReference;
+  inputReferences?: NodeReference[];
 };
 
 export type OpenAiNode = BaseNodeType & {

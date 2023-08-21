@@ -12,7 +12,7 @@ import ReactFlow, {
   Panel,
   Node,
   Edge,
-  Connection, NodeChange, OnNodesChange, OnEdgesChange,
+  Connection, OnNodesChange, OnEdgesChange,
 } from 'reactflow';
 
 import 'reactflow/dist/style.css';
@@ -24,19 +24,16 @@ import {
 } from '@/components/pipelines/pipeline-graph/node-conversions';
 
 import { PipelineEditorTopbar } from '@/components/pipelines/editor/pipeline-editor-topbar';
-import { Card } from '@/components/ui/card';
-import { RunningStatus, PipelineRunner, PipelineRunnerPanel } from '@/components/pipelines/runner';
+import { RunningStatus, PipelineRunnerPanel } from '@/components/pipelines/runner';
 import { savePipeline, runPipeline } from '@/components/pipelines/api';
-import { TranscriptList } from '@/components/pipelines/api/fetchTranscriptList';
 import { usePipelineNodesStore } from '@/components/pipelines/stores';
 
 
-type PipelineGraphProps = {
+type PipelineFlowProps = {
   pipeline: Pipeline;
 }
 
 const singleConnectionPorts = [
-  { type: 'OutputNode', handle: 'input' },
   { type: 'OpenAiNode', handle: 'prompt' },
 ]
 
@@ -53,7 +50,7 @@ function shouldClearEdges(edge: Edge) : boolean {
 
 export function PipelineFlow({
   pipeline,
-}: PipelineGraphProps) {
+}: PipelineFlowProps) {
   const [ currentPipeline, setCurrentPipeline ] = useState(pipeline);
   // TODO Find out how to derive this accurately (the onNodes/EdgesChange callbacks don't work for this)
   const [ isDirty, setIsDirty ] = useState(false);
