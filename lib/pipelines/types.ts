@@ -84,6 +84,7 @@ type BaseNodeType = {
 
 export type TextNode = BaseNodeType & {
   type: NodeType.TextNode;
+  useTextbox?: boolean;
   content: string;
 };
 

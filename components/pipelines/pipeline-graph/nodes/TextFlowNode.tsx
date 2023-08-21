@@ -29,6 +29,11 @@ export function TextFlowNode({
     setNode({ ...node, name });
   }
 
+  function setUseTextbox(useTextbox: boolean) {
+    if (!node) return;
+    setNode({ ...node, useTextbox });
+  }
+
   function setContent(content: string) {
     if (!node) return;
     setNode({ ...node, content });
@@ -55,11 +60,23 @@ export function TextFlowNode({
       data={data}
       {...props}
     >
-      <Textarea
-        className="h-32 w-72"
-        value={node.content}
-        onChange={e => setContent(e.target.value)}
-      />
+      <Label className="flex justify-between items-center mb-2">
+        <span>Use Textbox</span>
+        <Switch checked={node.useTextbox} onCheckedChange={setUseTextbox} />
+      </Label>
+      {node.useTextbox ? (
+        <Textarea
+          className="h-32 w-72"
+          value={node.content}
+          onChange={e => setContent(e.target.value)}
+        />
+      ) : (
+        <Input
+          className="w-72"
+          value={node.content}
+          onChange={e => setContent(e.target.value)}
+        />
+      )}
       <Handle type="target" position={Position.Right} id="output" />
     </FlowNode>
   )

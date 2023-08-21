@@ -4,6 +4,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { TranscriptSelect } from '@/components/pipelines/common';
 import { Button } from '@/components/ui/button';
 import { RefreshCwIcon } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 
 type PropertiesPanelProps = {
   properties: PipelineNode[],
@@ -65,11 +66,19 @@ function TextPropertySetter({
       <h3 className="mb-2 text-sm font-bold">
         {property.name || '[NoName]'}
       </h3>
-      <Textarea
-        className="h-32 bg-background"
-        value={property.content}
-        onChange={e => setContent(e.target.value)}
-      />
+      {property.useTextbox ? (
+          <Textarea
+          className="h-32 bg-background"
+          value={property.content}
+          onChange={e => setContent(e.target.value)}
+        />
+      ) : (
+        <Input
+          className="bg-background"
+          value={property.content}
+          onChange={e => setContent(e.target.value)}
+        />
+      )}
     </div>
   )
 }

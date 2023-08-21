@@ -133,7 +133,7 @@ async function runOutputNode(
   }
 
   const inputResults = [];
-  for (const inputNode of inputNodes) {
+  for (const inputNode of sortedInputNodes) {
     const inputResult = await runPipelineNode(inputNode, nodeResults);
     inputResults.push(inputResult)
   }
