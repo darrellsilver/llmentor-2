@@ -58,11 +58,19 @@ export function FlowNode({
           </div>
         )}
         <h3 className="flex-1 text-sm font-bold">
-          {title}
-          {pipelineNode && pipelineNode.isProperty && ` - ${pipelineNode.name || '[NoName]'}`}
+          {pipelineNode && pipelineNode.isProperty ? pipelineNode.name || '[NoName]' : title}
         </h3>
         {canBeProperty && pipelineNode && (
-          <Switch checked={pipelineNode.isProperty} onCheckedChange={setIsProperty} />
+          <Switch
+            className={`
+              data-[state=checked]:bg-green-600
+              data-[state=unchecked]:bg-gray-300
+              dark:data-[state=checked]:bg-green-700
+              dark:data-[state=unchecked]:bg-gray-600
+            `}
+            checked={pipelineNode.isProperty}
+            onCheckedChange={setIsProperty}
+          />
         )}
       </div>
       <div className={`p-2`}>
@@ -84,18 +92,18 @@ function getIconClasses(color: string) {
   switch (color) {
     case 'blue':
       return {
-        container: 'bg-blue-200 dark:bg-blue-900',
-        icon: "text-blue-900 dark:text-blue-400",
+        container: 'bg-blue-200 dark:bg-blue-950',
+        icon: "text-blue-900 dark:text-blue-300",
       }
     case 'purple':
       return {
-        container: 'bg-purple-200 dark:bg-purple-900',
-        icon: "text-purple-900 dark:text-purple-400",
+        container: 'bg-purple-200 dark:bg-purple-950',
+        icon: "text-purple-900 dark:text-purple-300",
       }
     case 'red':
       return {
-        container: 'bg-red-200 dark:bg-red-900',
-        icon: "text-red-900 dark:text-red-400",
+        container: 'bg-red-200 dark:bg-red-950',
+        icon: "text-red-900 dark:text-red-300",
       }
     default:
       return {
