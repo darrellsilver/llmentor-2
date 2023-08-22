@@ -41,7 +41,7 @@ export function PipelineSidebar({
               className={`mt-2 w-full justify-start ${isActive ? 'border-none bg-purple-100 text-purple-950 dark:bg-purple-950 dark:text-purple-200' : 'text-gray-700'}`}
               variant={isActive ? 'outline' : 'ghost'}
             >
-              {pipeline.title}
+              {pipeline.title || '[No Title]'}
             </Button>
           </a>
         );

@@ -17,6 +17,11 @@ export async function getPipeline(pipelineId: string): Promise<Pipeline | null> 
     }
   })
 
+  // Stub in description
+  if (!pipeline.description) {
+    pipeline.description = '';
+  }
+
   return pipelineData[pipelineId] || null;
 }
 

@@ -155,6 +155,20 @@ export function PipelineFlow({
     return pipeline;
   }
 
+  function onSetTitle(title: string) {
+    setCurrentPipeline({
+      ...currentPipeline,
+      title,
+    })
+  }
+
+  function onSetDescription(description: string) {
+    setCurrentPipeline({
+      ...currentPipeline,
+      description,
+    })
+  }
+
   return (
     <>
       <ReactFlow
@@ -183,7 +197,10 @@ export function PipelineFlow({
             onAddNode={onAddNode}
             onSave={onSave}
             onToggleRunner={toggleIsRunnerOpen}
+            isRunnerOpen={isRunnerOpen}
             isSaving={isSaving}
+            onSetTitle={onSetTitle}
+            onSetDescription={onSetDescription}
           />
         </Panel>
 

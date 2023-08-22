@@ -11,6 +11,10 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { getUuid } from '@/components/pipelines/common/getUuid';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { useState } from 'react';
 
 type PipelineEditorTopbarProps = {
   pipeline: Pipeline;
@@ -18,7 +22,10 @@ type PipelineEditorTopbarProps = {
   onAddNode: (node: Node<PipelineNode>) => void;
   onSave: () => void;
   onToggleRunner: () => void;
+  isRunnerOpen: boolean;
   isSaving: boolean;
+  onSetTitle: (title: string) => void;
+  onSetDescription: (description: string) => void;
 }
 
 export function PipelineEditorTopbar({
@@ -27,8 +34,13 @@ export function PipelineEditorTopbar({
   onAddNode,
   onSave,
   onToggleRunner,
+  isRunnerOpen,
   isSaving,
+  onSetTitle,
+  onSetDescription,
 }: PipelineEditorTopbarProps) {
+  const [ isEditorOpen, setIsEditorOpen ] = useState(false);
+
   function onClickAddTextNode() {
     console.log("Adding Text node...");
 
@@ -119,6 +131,16 @@ export function PipelineEditorTopbar({
     onAddNode(node);
   }
 
+  function onToggleEditor(open: boolean) {
+    if (isEditorOpen && !pipeline.title) return;
+    setIsEditorOpen(open);
+  }
+
+  function onClickSave() {
+    onSave();
+    setIsEditorOpen(false);
+  }
+
   return (
     <Card className="flex h-[65px] w-full items-center justify-between border-b px-3">
       <DropdownMenu>
@@ -138,9 +160,33 @@ export function PipelineEditorTopbar({
           <DropdownMenuItem onClick={onClickAddOutputNode}>Output</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      <h1 className="text-xl font-bold">
-        {pipeline.title}
-      </h1>
+      <Popover open={isEditorOpen} onOpenChange={onToggleEditor}>
+        <PopoverTrigger>
+          <h1 className="text-xl font-bold">
+            {pipeline.title || '[No Title]'}
+          </h1>
+        </PopoverTrigger>
+        {isEditorOpen && (
+          <PopoverContent className="w-96">
+            <Input
+              value={pipeline.title}
+              onChange={e => onSetTitle(e.target.value)}
+            />
+            <Textarea
+              className="mt-2"
+              value={pipeline.description}
+              onChange={e => onSetDescription(e.target.value)}
+            />
+            <Button
+              className="mt-2 w-full"
+              onClick={onClickSave}
+              disabled={pipeline.title.length < 1}
+            >
+              Update
+            </Button>
+          </PopoverContent>
+        )}
+      </Popover>
       <div className="flex items-center">
         <div className={`mr-2 h-2 w-2 rounded-full ${isDirty ? 'bg-red-500' : ''}`}>&nbsp;</div>
         <Button
@@ -153,11 +199,11 @@ export function PipelineEditorTopbar({
         </Button>
 
         <Button
-          className="ml-2"
+          className="ml-2 w-32"
           variant="secondary"
           onClick={onToggleRunner}
         >
-          Toggle Runner
+          {isRunnerOpen ? 'Close' : 'Open'} Runner
         </Button>
       </div>
     </Card>

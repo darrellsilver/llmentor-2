@@ -38,11 +38,12 @@ function getFlowEdgesFromOutputNode(outputNode: OutputNode): Edge[] {
   const nodeFlowId = flowIdFromNodeRef(outputNode)
 
   outputNode.inputReferences?.forEach(inputNodeRef => {
+    const inputFlowId = flowIdFromNodeRef(inputNodeRef);
     edges.push({
-      id: `OutputNode-${outputNode.id}-input`,
+      id: `OutputNode-${outputNode.id}-input-${inputFlowId}`,
       source: nodeFlowId,
       sourceHandle: 'input',
-      target: flowIdFromNodeRef(inputNodeRef),
+      target: inputFlowId,
       targetHandle: 'output'
     })
   })
@@ -67,11 +68,12 @@ function getFlowEdgesFromOpenAiNode(openAiNode: OpenAiNode): Edge[] {
   })
 
   if (openAiNode.promptReference) {
+    const promptNodeFlowId = flowIdFromNodeRef(openAiNode.promptReference);
     edges.push({
-      id: `OpenAiNode-${openAiNode.id}-prompt`,
+      id: `OpenAiNode-${openAiNode.id}-prompt-${promptNodeFlowId}`,
       source: openAiNodeFlowId,
       sourceHandle: 'prompt',
-      target: flowIdFromNodeRef(openAiNode.promptReference),
+      target: promptNodeFlowId,
       targetHandle: 'output',
     })
   }

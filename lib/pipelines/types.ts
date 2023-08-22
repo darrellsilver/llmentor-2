@@ -24,8 +24,16 @@ type PipelineRunnableStatus = (
 export type Pipeline = {
   id: string,
   title: string;
+  description: string;
   nodes: PipelineNode[];
 };
+
+export type ClientPipeline = {
+  id: string,
+  title: string;
+  description: string;
+  properties: PipelineProperty[];
+}
 
 export type PipelineNodeRunnable = {
   node: PipelineNode,
