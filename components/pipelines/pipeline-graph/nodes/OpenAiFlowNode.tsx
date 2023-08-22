@@ -4,6 +4,8 @@ import { OpenAiNode } from '@/lib/pipelines/types';
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 import { usePipelineNodesStore } from '@/components/pipelines/stores';
+import { ArrowRightIcon, CloudIcon } from 'lucide-react';
+import { IconKeys } from 'next/dist/lib/metadata/constants';
 
 export function OpenAiFlowNode({
  data,
@@ -32,7 +34,13 @@ export function OpenAiFlowNode({
   }
 
   return (
-    <FlowNode title="OpenAi" data={data} {...props}>
+    <FlowNode
+      title="OpenAi"
+      data={data}
+      iconColor="purple"
+      Icon={CloudIcon}
+      {...props}
+    >
       <Label>
         Temperature: {node.temperature}
         <Slider

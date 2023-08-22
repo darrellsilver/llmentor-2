@@ -5,6 +5,7 @@ import { usePipelineNodesStore } from '@/components/pipelines/stores';
 import { useTranscriptsStore } from '@/components/pipelines/stores/useTranscriptsStore';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
+import { CloudIcon, MessageCircleIcon, MessageSquareIcon } from 'lucide-react';
 
 export function TranscriptFlowNode({
  data,
@@ -19,16 +20,6 @@ export function TranscriptFlowNode({
     node: state.getTranscriptNode(data.id),
     setTranscriptNode: state.setTranscriptNode,
   }));
-
-  function setIsProperty(isProperty: boolean) {
-    if (!node) return;
-    setTranscriptNode({ ...node, isProperty });
-  }
-
-  function setName(name: string) {
-    if (!node) return;
-    setTranscriptNode({ ...node, name });
-  }
 
   function setTranscriptId(transcriptId: string) {
     if (!node) return;
@@ -55,6 +46,8 @@ export function TranscriptFlowNode({
       pipelineNode={node}
       canBeProperty={true}
       data={data}
+      iconColor="blue"
+      Icon={MessageSquareIcon}
       {...props}
     >
       <Select
