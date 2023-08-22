@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { usePipelineNodesStore } from '@/components/pipelines/stores';
 import { ArrowRightIcon, CloudIcon } from 'lucide-react';
 import { IconKeys } from 'next/dist/lib/metadata/constants';
+import { FlowInputHandle, FlowOutputHandle } from '@/components/pipelines/pipeline-graph/handles';
 
 export function OpenAiFlowNode({
  data,
@@ -44,7 +45,7 @@ export function OpenAiFlowNode({
       <Label>
         Temperature: {node.temperature}
         <Slider
-          className="my-2 w-48"
+          className="mb-4 mt-2 w-48"
           value={[node.temperature]}
           onValueChange={(values: number[]) => setTemperature(values[0])}
           min={0}
@@ -53,9 +54,9 @@ export function OpenAiFlowNode({
         />
       </Label>
 
-      <Handle type="source" position={Position.Left} id="context" style={{ top: 40 }} />
-      <Handle type="source" position={Position.Left} id="prompt" style={{ top: 55 }} />
-      <Handle type="target" position={Position.Right} id="output" />
+      <FlowInputHandle name="Contexts" id="context" allowMultiple />
+      <FlowInputHandle name="Prompt" id="prompt" />
+      <FlowOutputHandle name="Output" id="output" />
     </FlowNode>
   )
 }

@@ -6,6 +6,7 @@ import { useTranscriptsStore } from '@/components/pipelines/stores/useTranscript
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { CloudIcon, MessageCircleIcon, MessageSquareIcon } from 'lucide-react';
+import { FlowOutputHandle } from '@/components/pipelines/pipeline-graph/handles';
 
 export function TranscriptFlowNode({
  data,
@@ -65,7 +66,7 @@ export function TranscriptFlowNode({
           ))}
         </SelectContent>
       </Select>
-      <Handle type="target" position={Position.Right} id="output" />
+      <FlowOutputHandle name="Output" id="output" />
     </FlowNode>
   )
 }

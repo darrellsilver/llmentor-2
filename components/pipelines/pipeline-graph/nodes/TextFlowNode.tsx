@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { LucideAlbum, LucideTextCursorInput, TextCursorIcon, WrapTextIcon } from 'lucide-react';
 import { Icons } from '@/components/icons';
+import { FlowOutputHandle } from '@/components/pipelines/pipeline-graph/handles';
 
 export function TextFlowNode({
   data,
@@ -20,16 +21,6 @@ export function TextFlowNode({
     node: state.getTextNode(data.id),
     setNode: state.setNode,
   }));
-
-  function setIsProperty(isProperty: boolean) {
-    if (!node) return;
-    setNode({ ...node, isProperty });
-  }
-
-  function setName(name: string) {
-    if (!node) return;
-    setNode({ ...node, name });
-  }
 
   function setUseTextbox(useTextbox: boolean) {
     if (!node) return;
@@ -63,7 +54,7 @@ export function TextFlowNode({
       data={data}
       {...props}
     >
-      <Label className="flex justify-between items-center mb-2">
+      <Label className="mb-2 flex items-center justify-between">
         <span>Use Textbox</span>
         <Switch checked={node.useTextbox} onCheckedChange={setUseTextbox} />
       </Label>
@@ -80,7 +71,7 @@ export function TextFlowNode({
           onChange={e => setContent(e.target.value)}
         />
       )}
-      <Handle type="target" position={Position.Right} id="output" />
+      <FlowOutputHandle name="Output" id="output" />
     </FlowNode>
   )
 }
