@@ -11,8 +11,8 @@ export function FlowOutputHandle({
   id,
 }: FlowOutputHandleProps) {
   return (
-    <div className="relative mt-1 w-full rounded-sm p-1">
-      <Handle className="absolute" position={Position.Right} type="target" id={id} style={{ right: -11, top: 12 }}/>
+    <div className="relative mt-1 w-full rounded-sm">
+      <Handle className="absolute" position={Position.Right} type="target" id={id} style={{ right: -11, top: 9 }}/>
       <div className="flex items-center justify-end">
         <span className="ml-1 text-xs font-bold">{name}</span>
       </div>
