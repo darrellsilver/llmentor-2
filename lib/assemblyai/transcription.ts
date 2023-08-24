@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { cacheResponse, getCachedResponse } from '@/lib/assemblyai/response-caching';
+import { cacheResponse, getCachedResponse, getCachedResponsePaths } from '@/lib/assemblyai/response-caching';
 import * as process from 'process';
 import {
   AssemblyAiTranscriptRequest,
@@ -108,4 +108,13 @@ export async function fetchTranscription(assemblyAiTranscriptId: string): Promis
   const response = await axios.get(url, config);
 
   return response.data;
+}
+
+export async function getTranscriptIds() : Promise<string[]> {
+  const paths = await getCachedResponsePaths();
+  return paths.map(p => p.split('.')[0]);
+}
+
+export async function getTranscript(transcriptId: string): Promise<AssemblyAiTranscriptResponse | null> {
+  return await getCachedResponse(transcriptId);
 }

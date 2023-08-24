@@ -3,7 +3,7 @@ import {
   fetchTranscription,
   startTranscription,
   startTranscriptionForFile,
-  TEST_FILE_URL
+  TEST_FILE_URL,
 } from '@/lib/assemblyai/transcription';
 
 export async function GET(req: NextRequest) {
