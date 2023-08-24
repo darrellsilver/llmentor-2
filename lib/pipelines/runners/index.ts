@@ -1,21 +1,27 @@
 import {
   NodeReference,
+  NodeType,
+  OpenAiNode,
   OutputNode,
   Pipeline,
   PipelineNode,
   PipelineNodeRunnable,
+  PipelineProperty,
   PipelineRunnable,
-  TextNode, OpenAiNode, TranscriptNode
+  TextNode, TextProperty,
+  TranscriptNode, TranscriptProperty
 } from '@/lib/pipelines/types';
 import { getOpenAiCompletion } from '@/lib/openai';
 import { getTranscript } from '@/lib/assemblyai/transcription';
 
 let currentPipeline: Pipeline;
 
-export async function runPipeline(pipeline: Pipeline): Promise<PipelineRunnable> {
-  currentPipeline = pipeline;
+export async function runPipeline(pipeline: Pipeline, properties: PipelineProperty[] = []): Promise<PipelineRunnable> {
+  // TODO Create a pipeline runnable object with all pending nodes and use that instead
+  currentPipeline = getMergedPipeline(pipeline, properties);
 
-  const outputNode = pipeline.nodes.find(n => n.type === 'OutputNode');
+  // Start at the output node
+  const outputNode = currentPipeline.nodes.find(n => n.type === 'OutputNode');
 
   if (!outputNode) {
     return {
@@ -38,6 +44,29 @@ export async function runPipeline(pipeline: Pipeline): Promise<PipelineRunnable>
     status: 'error',
     message: result.status === 'error' ? result.message : 'Unknown error',
   };
+}
+
+function getMergedPipeline(pipeline: Pipeline, properties: PipelineProperty[]) {
+  const mergedPipeline = {
+    ...pipeline,
+    nodes: [ ...pipeline.nodes ],
+  }
+
+  for (const property of properties) {
+    const pipelineNode = mergedPipeline.nodes.find(node => node.type === property.type && node.id === property.id);
+    if (!pipelineNode) continue;
+
+    switch (pipelineNode.type) {
+      case NodeType.TextNode:
+        pipelineNode.content = (property as TextProperty).content;
+        break;
+      case NodeType.TranscriptNode:
+        pipelineNode.transcriptId = (property as TranscriptProperty).transcriptId;
+        break;
+    }
+  }
+
+  return mergedPipeline;
 }
 
 async function runPipelineNode(
@@ -81,11 +110,21 @@ async function runOutputNode(
   node: OutputNode,
   nodeResults: PipelineNodeRunnable[],
 ) {
-  if (!node.inputReference) {
+  // Fallback to existing reference for now
+  const inputReferences = node.inputReferences || (node.inputReference ? [node.inputReference] : []);
+  const inputNodes = await Promise.all(inputReferences.map(
+    async (inputReference) => await getNode(inputReference)
+  ));
+
+  // Sort by y position here (top to bottom)
+  // TODO Move to client (currently only references are available there)
+  const sortedInputNodes = inputNodes.sort((a, b) => a.position.y - b.position.y);
+
+  if (inputReferences.length === 0) {
     const result: PipelineNodeRunnable = {
       node,
       status: 'error',
-      message: 'No input to output node'
+      message: 'No inputs to output node'
     };
 
     nodeResults.push(result);
@@ -93,16 +132,21 @@ async function runOutputNode(
     return result;
   }
 
-  const inputNode = await getNode(node.inputReference);
-  const inputResult = await runPipelineNode(inputNode, nodeResults);
-  const result: PipelineNodeRunnable = inputResult.status === 'success' ? {
+  const inputResults = [];
+  for (const inputNode of sortedInputNodes) {
+    const inputResult = await runPipelineNode(inputNode, nodeResults);
+    inputResults.push(inputResult)
+  }
+
+  const resultText = inputResults.map(inputResult => inputResult.status === 'error'
+    ? `ERROR from ${inputResult.node.type} ${inputResult.node.id }: ${inputResult.message}`
+    : inputResult.result
+  ).join('\n\n');
+
+  const result: PipelineNodeRunnable = {
     node,
     status: 'success',
-    result: inputResult.result,
-  } : {
-    node,
-    status: 'error',
-    message: 'Failed node'
+    result: resultText,
   };
 
   nodeResults.push(result);
@@ -114,6 +158,14 @@ async function runOpenAiNode(
   node: OpenAiNode,
   nodeResults: PipelineNodeRunnable[],
 ) : Promise<PipelineNodeRunnable> {
+  // Return result if present node already ran
+  const existingResult = nodeResults.find(
+    result => result.node.type === node.type && result.node.id === node.id
+  );
+  if (existingResult) {
+    return existingResult;
+  }
+
   if (!node.promptReference) {
     const result: PipelineNodeRunnable = {
       node,
@@ -201,8 +253,15 @@ async function runTranscriptNode(
   node: TranscriptNode,
   nodeResults: PipelineNodeRunnable[],
 ) {
-  const transcriptId = node.transcriptId;
+  // Return result if present node already ran
+  const existingResult = nodeResults.find(
+    result => result.node.type === node.type && result.node.id === node.id
+  );
+  if (existingResult) {
+    return existingResult;
+  }
 
+  const transcriptId = node.transcriptId;
   if (!transcriptId) {
     const result: PipelineNodeRunnable = {
       node,
@@ -244,7 +303,7 @@ async function runTranscriptNode(
   const result: PipelineNodeRunnable = {
     node,
     status: 'success',
-    result: transcript.utterances.map(u => `Speaker ${u.speaker}: ${u.text}`).join('\n'),
+    result: transcript.utterances.map(u => `**Speaker ${u.speaker}:** ${u.text}`).join('\n\n'),
   }
 
   nodeResults.push(result);

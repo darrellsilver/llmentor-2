@@ -12,31 +12,28 @@ import ReactFlow, {
   Panel,
   Node,
   Edge,
-  Connection, NodeChange, OnNodesChange, OnEdgesChange,
+  Connection, OnNodesChange, OnEdgesChange,
 } from 'reactflow';
 
 import 'reactflow/dist/style.css';
 import { nodeTypes } from '@/components/pipelines/pipeline-graph/nodes';
-import { Pipeline, PipelineNode, PipelineRunnable } from '@/lib/pipelines/types';
+import { Pipeline, PipelineNode, PipelineProperty, PipelineRunnable } from '@/lib/pipelines/types';
 import {
   getFlowDataFromPipelineNodes,
   getPipelineNodesFromFlowData
 } from '@/components/pipelines/pipeline-graph/node-conversions';
 
 import { PipelineEditorTopbar } from '@/components/pipelines/editor/pipeline-editor-topbar';
-import { Card } from '@/components/ui/card';
-import { RunningStatus, PipelineRunner } from '@/components/pipelines/runner';
+import { RunningStatus, PipelineRunnerPanel } from '@/components/pipelines/runner';
 import { savePipeline, runPipeline } from '@/components/pipelines/api';
-import { TranscriptList } from '@/components/pipelines/api/fetchTranscriptList';
+import { usePipelineNodesStore } from '@/components/pipelines/stores';
 
 
-type PipelineGraphProps = {
+type PipelineFlowProps = {
   pipeline: Pipeline;
-  transcripts: TranscriptList;
 }
 
 const singleConnectionPorts = [
-  { type: 'OutputNode', handle: 'input' },
   { type: 'OpenAiNode', handle: 'prompt' },
 ]
 
@@ -53,8 +50,7 @@ function shouldClearEdges(edge: Edge) : boolean {
 
 export function PipelineFlow({
   pipeline,
-  transcripts,
-}: PipelineGraphProps) {
+}: PipelineFlowProps) {
   const [ currentPipeline, setCurrentPipeline ] = useState(pipeline);
   // TODO Find out how to derive this accurately (the onNodes/EdgesChange callbacks don't work for this)
   const [ isDirty, setIsDirty ] = useState(false);
@@ -90,6 +86,9 @@ export function PipelineFlow({
   );
 
   function onAddNode(node: Node<PipelineNode>) {
+    // Add the node to the store
+    usePipelineNodesStore.getState().setNode(node.data);
+
     setNodes([...nodes, node]);
   }
 
@@ -123,20 +122,20 @@ export function PipelineFlow({
   }
 
   async function toggleIsRunnerOpen() {
+    // Recalculate the pipeline so that the most recent properties are available
+    // TODO Manage this data more cleanly, eg recalculating when a node or edge is added/removed
+    if (!isRunnerOpen) {
+      updatePipeline()
+    }
+
     setIsRunnerOpen(!isRunnerOpen);
   }
 
-  async function onClickRun () {
+  async function onRun (properties: PipelineProperty[] = []) {
     setRunResult('');
     setRunningStatus('running');
 
-    // Send the pipeline instead of the saved one
-    const pipelineToRun = {
-      ...currentPipeline,
-      nodes: getPipelineNodesFromFlowData(nodes, edges),
-    }
-
-    const response = await runPipeline(pipelineToRun);
+    const response = await runPipeline(updatePipeline(), properties);
 
     if (response.status === 'success') {
       setRunResult(response.result);
@@ -145,6 +144,29 @@ export function PipelineFlow({
       setRunResult(response.message);
       setRunningStatus('error');
     }
+  }
+
+  function updatePipeline() : Pipeline {
+    const pipeline = {
+      ...currentPipeline,
+      nodes: getPipelineNodesFromFlowData(nodes, edges),
+    };
+    setCurrentPipeline(pipeline);
+    return pipeline;
+  }
+
+  function onSetTitle(title: string) {
+    setCurrentPipeline({
+      ...currentPipeline,
+      title,
+    })
+  }
+
+  function onSetDescription(description: string) {
+    setCurrentPipeline({
+      ...currentPipeline,
+      description,
+    })
   }
 
   return (
@@ -157,18 +179,13 @@ export function PipelineFlow({
         onConnect={onConnect}
         nodeTypes={nodeTypes}
       >
-        {isRunnerOpen && (
-          <Panel position="top-right">
-            <Card className="mt-20 h-[600px] w-[450px] p-4">
-              <PipelineRunner
-                pipeline={currentPipeline}
-                status={runningStatus}
-                result={runResult}
-                onClickRun={onClickRun}
-              />
-            </Card>
-          </Panel>
-        )}
+        <PipelineRunnerPanel
+          isOpen={isRunnerOpen}
+          pipeline={currentPipeline}
+          status={runningStatus}
+          result={runResult}
+          onRun={onRun}
+        />
 
         <Panel
           className="w-full pr-8"
@@ -176,12 +193,14 @@ export function PipelineFlow({
         >
           <PipelineEditorTopbar
             pipeline={currentPipeline}
-            transcripts={transcripts}
             isDirty={isDirty}
             onAddNode={onAddNode}
             onSave={onSave}
             onToggleRunner={toggleIsRunnerOpen}
+            isRunnerOpen={isRunnerOpen}
             isSaving={isSaving}
+            onSetTitle={onSetTitle}
+            onSetDescription={onSetDescription}
           />
         </Panel>
 

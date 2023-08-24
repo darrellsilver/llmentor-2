@@ -1,6 +1,9 @@
-import { Pipeline, PipelineRunnable } from '@/lib/pipelines/types';
+import { Pipeline, PipelineProperty, PipelineRunnable } from '@/lib/pipelines/types';
 
-export async function runPipeline(pipeline: Pipeline) : Promise<PipelineRunnable> {
+export async function runPipeline(
+  pipeline: Pipeline,
+  properties: PipelineProperty[] = []
+) : Promise<PipelineRunnable> {
   const response = await fetch(
     '/api/pipelines/run-pipeline',
     {
@@ -8,7 +11,7 @@ export async function runPipeline(pipeline: Pipeline) : Promise<PipelineRunnable
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ pipeline }),
+      body: JSON.stringify({ pipeline, properties }),
     }
   )
   return await response.json();

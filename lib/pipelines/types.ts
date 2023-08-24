@@ -24,8 +24,16 @@ type PipelineRunnableStatus = (
 export type Pipeline = {
   id: string,
   title: string;
+  description: string;
   nodes: PipelineNode[];
 };
+
+export type ClientPipeline = {
+  id: string,
+  title: string;
+  description: string;
+  properties: PipelineProperty[];
+}
 
 export type PipelineNodeRunnable = {
   node: PipelineNode,
@@ -41,6 +49,31 @@ export type NodeReference = {
   type: NodeType,
 };
 
+// Properties
+
+export type PipelineProperty = (
+  TextProperty |
+  TranscriptProperty
+);
+
+type BasePropertyType = {
+  id: string;
+};
+
+export type TextProperty = BasePropertyType & (
+  Pick<TextNode,
+    'type' |
+    'content'
+  >
+);
+
+export type TranscriptProperty = BasePropertyType & (
+  Pick<TranscriptNode,
+    'type' |
+    'transcriptId'
+  >
+);
+
 // Nodes
 
 export type PipelineNode = (
@@ -52,17 +85,21 @@ export type PipelineNode = (
 
 type BaseNodeType = {
   id: string;
+  name?: string;
+  isProperty?: boolean;
   position: { x: number, y: number };
 }
 
 export type TextNode = BaseNodeType & {
   type: NodeType.TextNode;
+  useTextbox?: boolean;
   content: string;
 };
 
 export type OutputNode = BaseNodeType & {
   type: NodeType.OutputNode;
   inputReference: null | NodeReference;
+  inputReferences?: NodeReference[];
 };
 
 export type OpenAiNode = BaseNodeType & {
@@ -74,5 +111,5 @@ export type OpenAiNode = BaseNodeType & {
 
 export type TranscriptNode = BaseNodeType & {
   type: NodeType.TranscriptNode;
-  transcriptId: string;
+  transcriptId: string | null;
 };

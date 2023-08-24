@@ -1,11 +1,9 @@
 import { Button } from '@/components/ui/button';
-import { Pipeline, PipelineRunnable } from '@/lib/pipelines/types';
-import { useState } from 'react';
+import ReactMarkdown from 'react-markdown';
 
 export type RunningStatus = 'inactive' | 'running' | 'error' | 'success';
 
 type PipelineRunnerProps = {
-  pipeline: Pipeline;
   status: RunningStatus;
   result: string;
   onClickRun: () => void;
@@ -26,11 +24,11 @@ export function PipelineRunner({
         {status === 'running' ? 'Running' : 'Start'}
       </Button>
       {result ? (
-        <div
+        <ReactMarkdown
           className="no-scrollbar mt-4 overflow-y-scroll"
         >
           {result}
-        </div>
+        </ReactMarkdown>
       ) : (
         <div
           className="flex w-full flex-1 items-center justify-center"
