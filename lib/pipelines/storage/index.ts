@@ -1,11 +1,59 @@
-import { NodeType, Pipeline } from '@/lib/pipelines/types';
+import { ClientPipeline, NodeType, Pipeline, PipelineNode, PipelineProperty } from '@/lib/pipelines/types';
 import path from 'path';
 import fs from 'fs';
+import { pipe } from 'next/dist/build/webpack/config/utils';
 
-export async function getPipeline(pipelineId: string): Promise<Pipeline | null> {
-  const pipelineData = await getPipelines();
+export async function getClientPipeline(pipelineId: string, directory: string = 'pipelines'): Promise<ClientPipeline | null> {
+  const pipeline = await getPipeline(pipelineId, directory);
+  if (pipeline === null) return pipeline;
+
+  // TODO find a cleaner way to do this conversion
+  const properties = [];
+  for (const property of pipeline.nodes.filter(node => node.isProperty).map(nodeToProperty)) {
+    if (property === null) continue;
+    properties.push(property);
+  }
+
+  return {
+    id: pipeline.id,
+    title: pipeline.title,
+    description: pipeline.description,
+    properties,
+  }
+}
+
+function nodeToProperty(node: PipelineNode): PipelineProperty | null {
+  switch (node.type) {
+    case NodeType.TextNode:
+      return {
+        type: node.type,
+        id: node.id,
+        name: node.name,
+        content: node.content,
+        useTextbox: node.useTextbox,
+      };
+    case NodeType.TranscriptNode:
+      return {
+        type: node.type,
+        id: node.id,
+        name: node.name,
+        transcriptId: node.transcriptId,
+      };
+    default:
+      return null;
+  }
+}
+
+export async function getPipeline(pipelineId: string, directory: string = 'pipelines'): Promise<Pipeline | null> {
+  // Prioritize individual pipeline file
+  const pipelineFile = await getPipelineFromFile(pipelineId, directory);
+  if (pipelineFile) {
+    return pipelineFile;
+  }
+
+  const pipelineData = await getPipelineData(directory);
   const pipeline = pipelineData[pipelineId] || null;
-  if (!pipeline) return pipeline;
+  if (!pipeline) return null;
 
   // Ensure backwards compatability with single input
   pipeline.nodes.forEach((node) => {
@@ -22,11 +70,28 @@ export async function getPipeline(pipelineId: string): Promise<Pipeline | null> 
     pipeline.description = '';
   }
 
-  return pipelineData[pipelineId] || null;
+  // Save to own file
+  await savePipeline(pipeline);
+
+  return pipeline;
 }
 
-export async function getPipelines() : Promise<{ [key: string]: Pipeline }> {
-  const filePath = getFilePath();
+export async function getPipelines(directory: string = 'pipelines'): Promise<Pipeline[]> {
+  const pipelines: Pipeline[] = [];
+
+  // Get all the pipelines
+  const pipelineIds = await getPipelineIds();
+  for (const pipelineId of pipelineIds) {
+    const pipeline = await getPipeline(pipelineId);
+    if (pipeline === null) continue;
+    pipelines.push(pipeline);
+  }
+
+  return pipelines;
+}
+
+export async function getPipelineData(directory: string = 'pipelines') : Promise<{ [key: string]: Pipeline }> {
+  const filePath = getDataFilePath(directory);
   if (!fs.existsSync(filePath)) {
     return {};
   }
@@ -34,21 +99,46 @@ export async function getPipelines() : Promise<{ [key: string]: Pipeline }> {
   return await JSON.parse(fs.readFileSync(filePath, 'utf-8'));
 }
 
-export async function savePipeline(pipeline: Pipeline) {
-  const pipelineData = await getPipelines();
-
-  pipelineData[pipeline.id] = pipeline;
-
-  await savePipelineData(pipelineData);
-
-  return pipeline;
+export async function savePipeline(pipeline: Pipeline, directory: string = 'pipelines') {
+  fs.writeFileSync(await getPipelineFilePath(pipeline.id, directory), JSON.stringify(pipeline));
 }
 
-export async function savePipelineData(pipelines: { [key: string]: Pipeline }) {
-  fs.writeFileSync(getFilePath(), JSON.stringify(pipelines));
+export async function upgradeFromDataJson(directory: string = 'pipelines') {
+  const pipelineData = getPipelineData(directory);
+
+  for (const pipeline of Object.values(pipelineData)) {
+    await savePipeline(pipeline, directory);
+  }
 }
 
-function getFilePath() {
-  const dataDir = path.resolve(process.cwd(), 'data/pipelines');
+export async function savePipelineData(pipelines: { [key: string]: Pipeline }, directory: string = 'pipelines') {
+  fs.writeFileSync(getDataFilePath(), JSON.stringify(pipelines));
+}
+
+async function getPipelineFromFile(pipelineId: string, directory: string = 'pipelines'): Promise<Pipeline | null> {
+  const filePath = await getPipelineFilePath(pipelineId, directory);
+
+  if (!fs.existsSync(filePath)) {
+    return null;
+  }
+
+  return await JSON.parse(fs.readFileSync(filePath, 'utf-8')) as Pipeline;
+}
+
+async function getPipelineIds(directory: string = 'pipelines') {
+  const dataDir = path.resolve(process.cwd(), `data/${directory}`);
+  return fs.readdirSync(dataDir)
+    .map(fileName => fileName.replace('.json', ''))
+    .filter(pipelineId => pipelineId !== 'data');
+}
+
+async function getPipelineFilePath(pipelineId: string, directory: string = 'pipelines') {
+  const dataDir = path.resolve(process.cwd(), `data/${directory}`);
+
+  return `${dataDir}/${pipelineId}.json`
+}
+
+function getDataFilePath(directory: string = 'pipelines') {
+  const dataDir = path.resolve(process.cwd(), `data/${directory}`);
   return `${dataDir}/data.json`
 }

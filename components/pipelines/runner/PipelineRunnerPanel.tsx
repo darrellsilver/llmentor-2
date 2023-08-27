@@ -2,7 +2,7 @@ import { Panel } from 'reactflow';
 import { Card } from '@/components/ui/card';
 import { PipelineRunner, RunningStatus } from '@/components/pipelines/runner/pipeline-runner';
 import React, { useEffect, useState } from 'react';
-import { Pipeline, PipelineNode, PipelineProperty } from '@/lib/pipelines/types';
+import { Pipeline, PipelineNode, PipelineProperty, PipelineRunnableOutput } from '@/lib/pipelines/types';
 import { PropertiesPanel } from '@/components/pipelines/runner/PropertiesPanel';
 import { usePipelineNodesStore } from '@/components/pipelines/stores';
 
@@ -11,6 +11,7 @@ type PipelineRunnerPanelProps = {
   pipeline: Pipeline;
   status: RunningStatus;
   result: string;
+  outputs: PipelineRunnableOutput[];
   onRun: (properties: PipelineProperty[]) => void;
 }
 
@@ -18,7 +19,8 @@ export function PipelineRunnerPanel({
   isOpen,
   status,
   result,
-                                      onRun,
+  outputs,
+  onRun,
 }: PipelineRunnerPanelProps) {
   const [ properties, setProperties ] = useState<PipelineNode[]>(
     usePipelineNodesStore
@@ -55,10 +57,10 @@ export function PipelineRunnerPanel({
   }
 
 
-  function updateProperty(newProperty: PipelineNode) {
+  function updateProperty(newProperty: PipelineNode | PipelineProperty) {
     setProperties(properties.map(property =>
       property.type === newProperty.type && property.id === newProperty.id
-        ? newProperty
+        ? newProperty as PipelineNode
         : property
     ))
   }
@@ -77,11 +79,13 @@ export function PipelineRunnerPanel({
               properties={properties}
               onRefreshProperties={refreshProperties}
               onPropertyChange={updateProperty}
+              canRefresh={true}
             />
             <div className="flex-1 p-4">
               <PipelineRunner
                 status={status}
                 result={result}
+                outputs={outputs}
                 onClickRun={onClickRun}
               />
             </div>

@@ -1,5 +1,12 @@
 import React from 'react';
-import { NodeType, PipelineNode, TextNode, TranscriptNode } from '@/lib/pipelines/types';
+import {
+  NodeType,
+  PipelineNode,
+  PipelineProperty,
+  TextNode,
+  TextProperty,
+  TranscriptNode, TranscriptProperty
+} from '@/lib/pipelines/types';
 import { Textarea } from '@/components/ui/textarea';
 import { TranscriptSelect } from '@/components/pipelines/common';
 import { Button } from '@/components/ui/button';
@@ -7,38 +14,42 @@ import { RefreshCwIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
 type PropertiesPanelProps = {
-  properties: PipelineNode[],
+  properties: PipelineNode[] | PipelineProperty[],
   onRefreshProperties: () => void;
-  onPropertyChange: (property: PipelineNode) => void;
+  onPropertyChange: (property: PipelineNode | PipelineProperty) => void;
+  canRefresh: boolean;
 }
 
 export function PropertiesPanel({
   properties,
   onRefreshProperties,
   onPropertyChange,
+  canRefresh = false,
 }: PropertiesPanelProps) {
   return (
     <div className="h-full w-[300px] border-r bg-accent p-4">
       <div className="flex items-center justify-between border-b pb-2">
         <h2 className="text-lg font-bold">Properties</h2>
-        <Button
-          className="hover:bg-background"
-          onClick={onRefreshProperties}
-          variant="ghost"
-        >
-          <RefreshCwIcon height={18} />
-        </Button>
+        {canRefresh && (
+          <Button
+            className="hover:bg-background"
+            onClick={onRefreshProperties}
+            variant="ghost"
+          >
+            <RefreshCwIcon height={18} />
+          </Button>
+        )}
       </div>
 
       {properties.map(property => {
         switch (property.type) {
           case NodeType.TextNode:
-            return <TextPropertySetter property={property} onPropertyChange={onPropertyChange} />
+            return <TextPropertySetter key={property.id} property={property} onPropertyChange={onPropertyChange} />
           case NodeType.TranscriptNode:
-            return <TranscriptPropertySetter property={property} onPropertyChange={onPropertyChange} />
+            return <TranscriptPropertySetter key={property.id} property={property} onPropertyChange={onPropertyChange} />
           default:
             // TODO Add error state setter instead
-            return <></>
+            return <div key={property.id}></div>
         }
       })}
     </div>
@@ -46,8 +57,8 @@ export function PropertiesPanel({
 }
 
 type TextPropertySetterProps = {
-  property: TextNode,
-  onPropertyChange: (property: PipelineNode) => void;
+  property: TextNode | TextProperty,
+  onPropertyChange: (property: PipelineNode | PipelineProperty) => void;
 }
 
 function TextPropertySetter({
@@ -84,8 +95,8 @@ function TextPropertySetter({
 }
 
 type TranscriptPropertySetterProps = {
-  property: TranscriptNode,
-  onPropertyChange: (property: PipelineNode) => void;
+  property: TranscriptNode | TranscriptProperty,
+  onPropertyChange: (property: PipelineNode | PipelineProperty) => void;
 }
 
 function TranscriptPropertySetter({
