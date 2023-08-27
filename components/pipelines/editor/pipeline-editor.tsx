@@ -17,7 +17,7 @@ type PipelineEditorProps = {
 export function PipelineEditor({
   pipeline,
 }: PipelineEditorProps) {
-  // Fetch transcripts
+  // Fetch transcript
   useEffect(function() {
     fetchTranscriptList().then(transcripts => {
       useTranscriptsStore

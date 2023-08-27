@@ -7,6 +7,7 @@ module.exports = {
     './app/**/*.{ts,tsx}',
     './src/**/*.{ts,tsx}',
     './views/**/*.{ts,tsx}',
+    './lib/**/*.{ts,tsx}',
 	],
   theme: {
     container: {

@@ -11,7 +11,7 @@ export default async function PipelineDesignerEditorPage(
 
   return (
     <div style={{ width: '100%', height: `calc(100vh - 65px)` }}>
-      <PipelineEditor pipeline={pipeline} />
+      {pipeline && <PipelineEditor pipeline={pipeline}/>}
     </div>
   )
 }

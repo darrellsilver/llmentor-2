@@ -42,7 +42,7 @@
     "lucide-react": "0.274.0",
     "next": "^13.4.8",
     "next-themes": "^0.2.1",
-    "openai": "^3.3.0",
+    "openai": "^4.1.0",
     "openai-edge": "^1.2.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

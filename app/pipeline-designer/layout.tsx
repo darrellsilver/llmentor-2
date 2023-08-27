@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { PipelineSidebar } from '@/components/pipelines';
-import { getPipelines } from '@/lib/pipelines/storage';
+import { getPipeline, getPipelineData, getPipelines, upgradeFromDataJson } from '@/lib/pipelines/storage';
 
 type PipelineDesignerLayoutProps = {
   params: { pipelineId: string };
@@ -12,11 +12,17 @@ export const dynamic = 'force-dynamic';
 export default async function PipelineDesignerLayout({
   children,
 }: PipelineDesignerLayoutProps) {
-  const pipelineData = await getPipelines();
+  let pipelines = await getPipelines();
+
+  // Upgrade from data.json if needed
+  if (pipelines.length === 0) {
+    await upgradeFromDataJson();
+    pipelines = await getPipelines();
+  }
 
   return (
     <div className="flex h-full w-full">
-      <PipelineSidebar pipelines={Object.values(pipelineData)} />
+      <PipelineSidebar pipelines={pipelines} />
       {children}
     </div>
   );

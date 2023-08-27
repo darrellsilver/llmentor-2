@@ -17,9 +17,25 @@ export type PipelineRunnable = {
 } & PipelineRunnableStatus;
 
 type PipelineRunnableStatus = (
-  { status: 'error', message: string } |
-  { status: 'success', nodeResults: PipelineNodeRunnable[], result: string }
-);
+  {
+    status: 'error';
+    message: string;
+  } |
+  {
+    status: 'success';
+    nodeResults: PipelineNodeRunnable[];
+    result: string;
+    outputs: PipelineRunnableOutput[];
+  }
+  );
+
+export type PipelineRunnableOutput = {
+  name: string;
+  value: string;
+  format: PipelineOutputFormat;
+}
+
+export type PipelineOutputFormat = 'text' | 'markdown' | 'json';
 
 export type Pipeline = {
   id: string,
@@ -42,7 +58,7 @@ export type PipelineNodeRunnable = {
 type PipelineNodeRunnableStatus = (
   { status: 'error', message: string } |
   { status: 'success', result: string }
-);
+  );
 
 export type NodeReference = {
   id: string,
@@ -54,25 +70,27 @@ export type NodeReference = {
 export type PipelineProperty = (
   TextProperty |
   TranscriptProperty
-);
+  );
 
 type BasePropertyType = {
   id: string;
+  name?: string;
 };
 
 export type TextProperty = BasePropertyType & (
   Pick<TextNode,
     'type' |
-    'content'
+    'content' |
+    'useTextbox'
   >
-);
+  );
 
 export type TranscriptProperty = BasePropertyType & (
   Pick<TranscriptNode,
     'type' |
     'transcriptId'
   >
-);
+  );
 
 // Nodes
 
@@ -81,7 +99,7 @@ export type PipelineNode = (
   OutputNode |
   OpenAiNode |
   TranscriptNode
-);
+  );
 
 type BaseNodeType = {
   id: string;
