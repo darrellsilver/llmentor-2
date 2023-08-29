@@ -6,7 +6,7 @@ export type TranscriptListItem = {
 
 export async function fetchTranscriptList() : Promise<TranscriptList> {
   const response = await fetch(
-    '/api/transcripts/list',
+    '/api/transcripts/get-transcripts',
     {
       method: 'POST',
       headers: {

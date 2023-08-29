@@ -2,9 +2,9 @@
 
 import { Card } from '@/components/ui/card';
 import { NodeProps } from 'reactflow';
-import { NewPipelineNode, PipelineNodeRef } from '@/lib/new-pipelines/core/types';
+import { NewPipelineNode, PipelineNodeRef } from '@/lib/new-pipelines/types';
 import { usePipelineNodeStore } from '@/lib/new-pipelines/ui/stores/usePipelineNodeStore';
-import { ErrorFlowNode } from '@/lib/new-pipelines/core/ui/ErrorFlowNode';
+import { ErrorFlowNode } from '@/lib/new-pipelines/ui/nodes/ErrorFlowNode';
 import { usePipelineExtensionStore } from '@/lib/new-pipelines/ui/stores/usePipelineExtensionStore';
 
 type PipelineDesignerFlowNodeProps = NodeProps<PipelineNodeRef>;

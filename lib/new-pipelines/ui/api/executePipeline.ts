@@ -1,5 +1,5 @@
-import { NewPipeline } from '@/lib/new-pipelines/core/types';
-import { fetchPost } from '@/lib/new-pipelines/ui/api/fetchPost';
+import { NewPipeline } from '@/lib/new-pipelines/types';
+import { fetchPost } from '@/lib/new-pipelines/ui/api/common/fetchPost';
 
 export async function executePipeline(
   pipeline: NewPipeline,

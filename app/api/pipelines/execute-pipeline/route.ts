@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { PipelineExecutor } from '@/lib/new-pipelines/execution';
-import { NewPipeline } from '@/lib/new-pipelines/core/types';
+import { NewPipeline } from '@/lib/new-pipelines/types';
 
 export async function POST(req: Request) {
   const {
@@ -11,9 +11,7 @@ export async function POST(req: Request) {
     input: { [key: string]: any },
   } = await req.json();
 
-  const execution = await new PipelineExecutor()
-    .registerExtensionIds(pipeline.extensionIds)
-    .execute(pipeline, input)
+  const execution = await new PipelineExecutor(pipeline).execute(input)
 
   return NextResponse.json({ execution });
 }

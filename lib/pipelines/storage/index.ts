@@ -80,9 +80,9 @@ export async function getPipelines(directory: string = 'pipelines'): Promise<Pip
   const pipelines: Pipeline[] = [];
 
   // Get all the pipelines
-  const pipelineIds = await getPipelineIds();
+  const pipelineIds = await getPipelineIds(directory);
   for (const pipelineId of pipelineIds) {
-    const pipeline = await getPipeline(pipelineId);
+    const pipeline = await getPipeline(pipelineId, directory);
     if (pipeline === null) continue;
     pipelines.push(pipeline);
   }
@@ -101,6 +101,7 @@ export async function getPipelineData(directory: string = 'pipelines') : Promise
 
 export async function savePipeline(pipeline: Pipeline, directory: string = 'pipelines') {
   fs.writeFileSync(await getPipelineFilePath(pipeline.id, directory), JSON.stringify(pipeline));
+  return pipeline;
 }
 
 export async function upgradeFromDataJson(directory: string = 'pipelines') {

@@ -1,3 +1,1 @@
-import { PipelineExecutor } from '@/lib/new-pipelines/execution';
-
-const executor = new PipelineExecutor();
+export { PipelineExecutor } from '@/lib/new-pipelines/execution';

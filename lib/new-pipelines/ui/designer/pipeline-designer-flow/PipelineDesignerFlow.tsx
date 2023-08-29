@@ -1,7 +1,7 @@
 import ReactFlow, { useNodesState, useEdgesState } from 'reactflow';
 import 'reactflow/dist/style.css';
 
-import { NewPipeline, NewPipelineExecution, NewPipelineNode } from '@/lib/new-pipelines/core/types';
+import { NewPipeline, NewPipelineExecution, NewPipelineNode } from '@/lib/new-pipelines/types';
 
 import { PipelineDesignerFlowExtensions } from './PipelineDesignerFlowExtensions';
 import { PipelineDesignerFlowNode } from './PipelineDesignerFlowNode';
@@ -18,12 +18,14 @@ import {
 
 type PipelineDesignerFlowProps = {
   pipeline: NewPipeline;
+  onUpdatePipeline: (pipeline: NewPipeline) => void;
   onSavePipeline: (pipeline: NewPipeline) => void;
   isSaving: boolean;
   onToggleExecutor: () => void;
   isExecutorOpen: boolean;
   onExecutePipeline: (pipeline: NewPipeline, input: { [key: string]: any }) => void;
   execution: NewPipelineExecution | null;
+  onSaveExecution: (execution: NewPipelineExecution) => void;
   isExecuting: boolean;
 }
 
@@ -33,12 +35,14 @@ const nodeTypes = {
 
 export function PipelineDesignerFlow({
   pipeline,
+  onUpdatePipeline,
   onSavePipeline,
   isSaving,
   onToggleExecutor,
   isExecutorOpen,
   onExecutePipeline,
   isExecuting,
+  onSaveExecution,
   execution,
 }: PipelineDesignerFlowProps) {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
@@ -48,7 +52,7 @@ export function PipelineDesignerFlow({
 
   const onConnect = useOnConnect(edges, setEdges);
 
-  function onClickExecute(input: { [key: string]: any }) {
+  function onExecute(input: { [key: string]: any }) {
     onExecutePipeline(buildPipeline(), input);
   }
 
@@ -56,11 +60,23 @@ export function PipelineDesignerFlow({
     onSavePipeline(buildPipeline());
   }
 
+  function buildAndSetPipeline() {
+    onUpdatePipeline(buildPipeline())
+  }
+
   function buildPipeline() {
     return {
       ...pipeline,
       nodes: getPipelineNodes(nodes, edges),
     }
+  }
+
+  function onClickToggleExecutor() {
+    // Build the pipeline if opening the executor, so the view is updated
+    if (!isExecutorOpen) {
+      buildAndSetPipeline()
+    }
+    onToggleExecutor();
   }
 
   const onAddNode = (node: NewPipelineNode) => {
@@ -82,16 +98,16 @@ export function PipelineDesignerFlow({
         onAddNode={onAddNode}
         onClickSave={onClickSave}
         isSaving={isSaving}
-        onToggleExecutor={onToggleExecutor}
+        onToggleExecutor={onClickToggleExecutor}
         isExecutorOpen={isExecutorOpen}
-        onClickExecute={onClickExecute}
-        isExecuting={isExecuting}
       />
       <PipelineDesignerFlowExecutor
         isOpen={isExecutorOpen}
-        onClickExecute={onClickExecute}
+        onRefresh={buildAndSetPipeline}
+        onExecute={onExecute}
         isExecuting={isExecuting}
         execution={execution}
+        onSaveExecution={onSaveExecution}
         pipeline={pipeline}
       />
       <PipelineDesignerFlowExtensions />

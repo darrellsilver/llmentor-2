@@ -118,3 +118,11 @@ export async function getTranscriptIds() : Promise<string[]> {
 export async function getTranscript(transcriptId: string): Promise<AssemblyAiTranscriptResponse | null> {
   return await getCachedResponse(transcriptId);
 }
+
+export function getTranscriptText(transcript: AssemblyAiTranscriptResponse): string | null {
+  if (!transcript.utterances) return null;
+
+  return transcript.utterances
+    .map(utterance => `Speaker ${utterance.speaker}: ${utterance.text}`)
+    .join('\n');
+}

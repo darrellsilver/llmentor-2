@@ -1,4 +1,4 @@
-import { NewPipelineNode, PipelineOutputNodeRef } from '@/lib/new-pipelines/core/types';
+import { NewPipelineNode, PipelineOutputNodeRef } from '@/lib/new-pipelines/types';
 import { Edge } from 'reactflow';
 import { getFlowId } from '@/lib/new-pipelines/ui/utils/getFlowId';
 

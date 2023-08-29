@@ -1,4 +1,4 @@
-import { fetchPost } from '@/lib/new-pipelines/ui/api/fetchPost';
+import { fetchPost } from '@/lib/new-pipelines/ui/api/common/fetchPost';
 
 export async function fetchPipeline(pipelineId: string) {
   return await fetchPost(

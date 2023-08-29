@@ -1,4 +1,4 @@
-import { NewPipeline, NewPipelineNode } from '@/lib/new-pipelines/core/types';
+import { NewPipeline, NewPipelineNode } from '@/lib/new-pipelines/types';
 import { Edge, Node } from 'reactflow';
 import { usePipelineNodeStore } from '@/lib/new-pipelines/ui/stores/usePipelineNodeStore';
 import { useEffect } from 'react';
