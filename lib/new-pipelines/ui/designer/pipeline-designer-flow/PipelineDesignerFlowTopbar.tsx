@@ -1,4 +1,4 @@
-import { NewPipeline, NewPipelineNode } from '@/lib/new-pipelines/core/types';
+import { NewPipeline, NewPipelineNode } from '@/lib/new-pipelines/types';
 import { Panel } from 'reactflow';
 import { Card } from '@/components/ui/card';
 import {
@@ -11,8 +11,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { usePipelineExtensionStore } from '@/lib/new-pipelines/ui/stores/usePipelineExtensionStore';
-import { PipelineExtension } from '@/lib/new-pipelines/core/extensions';
-import { getExtensions } from '@/lib/new-pipelines/extensions';
+import { PipelineExtension } from '@/lib/new-pipelines/interfaces';
 
 type PipelineDesignerFlowTopbarProps = {
   pipeline: NewPipeline;
@@ -21,8 +20,6 @@ type PipelineDesignerFlowTopbarProps = {
   isSaving: boolean;
   onToggleExecutor: () => void;
   isExecutorOpen: boolean;
-  onClickExecute: (input: { [key: string]: any }) => void;
-  isExecuting: boolean;
 };
 
 export function PipelineDesignerFlowTopbar({
@@ -32,8 +29,6 @@ export function PipelineDesignerFlowTopbar({
   isSaving,
   onToggleExecutor,
   isExecutorOpen,
-  onClickExecute,
-  isExecuting,
 }: PipelineDesignerFlowTopbarProps) {
   return (
     <Panel
@@ -42,14 +37,14 @@ export function PipelineDesignerFlowTopbar({
       position={'top-left'}
     >
       <Card
-        className="flex items-center justify-between p-4"
+        className="flex items-center justify-between p-3"
       >
         <AddNodeDropdown
           extensionIds={pipeline.extensionIds}
           onAddNode={onAddNode}
         />
         <PipelineName pipeline={pipeline} />
-        <div>
+        <div className="flex w-56">
           <Button
             className="mr-2"
             variant="ghost"
@@ -59,7 +54,7 @@ export function PipelineDesignerFlowTopbar({
             Save
           </Button>
           <Button
-            className="w-40"
+            className="flex-1"
             variant="secondary"
             onClick={onToggleExecutor}
           >
@@ -103,7 +98,7 @@ function AddNodeDropdown({
         {extensions.map((extension, idx) => (
           <AddNodeDropdownExtensionItems
             key={idx}
-            extension={getExtension('core')!}
+            extension={extension}
             onAddNode={onAddNode}
             renderSeparator={idx !== 0}
           />
@@ -161,7 +156,7 @@ function PipelineName({
   return (
     <div>
       <h1
-        className="text-lg font-bold"
+        className="text-xl font-bold"
       >
         {pipeline.name}
       </h1>

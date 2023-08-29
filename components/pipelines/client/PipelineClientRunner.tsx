@@ -64,7 +64,7 @@ export function PipelineClientRunner({
           >
             Run Pipeline
           </Button>
-          {isRunning && <IconPulseLoader Icon={GlassesIcon} text="Running" />}
+          {isRunning && <IconPulseLoader Icon={<GlassesIcon />} text="Running" />}
           {result && result.status === 'error' && <ReactMarkdown>{result.message}</ReactMarkdown>}
           {result && result.status === 'success' && <ReactMarkdown className="overflow-y-scroll">{result.result}</ReactMarkdown>}
         </div>

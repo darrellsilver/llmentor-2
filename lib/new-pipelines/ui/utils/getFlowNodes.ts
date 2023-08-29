@@ -1,4 +1,4 @@
-import { NewPipelineNode } from '@/lib/new-pipelines/core/types';
+import { NewPipelineNode } from '@/lib/new-pipelines/types';
 import { Node } from 'reactflow';
 import { getFlowId } from '@/lib/new-pipelines/ui/utils/getFlowId';
 

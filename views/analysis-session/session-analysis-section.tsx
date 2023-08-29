@@ -6,7 +6,7 @@ import { AnalyzerSelect } from '@/views/analysis-session/analyzer-select';
 import { Badge } from '@/components/ui/badge';
 import { Glasses } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
-import { CenteredMutedMessage } from '@/views/analysis-session/centered-muted-message';
+import { CenteredMessage } from '@/views/analysis-session/centered-message';
 import { Icon } from '@radix-ui/react-select';
 import { IconPulseLoader } from '@/views/analysis-session/icon-pulse-loader';
 
@@ -135,22 +135,22 @@ export function SessionAnalysisSection({
       </CardHeader>
       <CardContent className="flex-1 pt-4">
         {inputText === null && status === WorkflowStatus.Waiting && (
-          <CenteredMutedMessage>
+          <CenteredMessage>
             Waiting for input
-          </CenteredMutedMessage>
+          </CenteredMessage>
         )}
         {inputText !== null && status === WorkflowStatus.Waiting && (
-          <CenteredMutedMessage>
+          <CenteredMessage>
             Pick an analyzer and run analysis
-          </CenteredMutedMessage>
+          </CenteredMessage>
         )}
         {status === WorkflowStatus.Running && (
-          <IconPulseLoader Icon={Glasses} text="Analyzing" />
+          <IconPulseLoader Icon={<Glasses />} text="Analyzing" />
         )}
         {status === WorkflowStatus.Error && (
-          <CenteredMutedMessage>
+          <CenteredMessage>
             An Error Occurred
-          </CenteredMutedMessage>
+          </CenteredMessage>
         )}
         {status === WorkflowStatus.Complete && result?.text}
       </CardContent>

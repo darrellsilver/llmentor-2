@@ -30,10 +30,6 @@ const functions: CompletionCreateParams.Function[] = [
   }
 ]
 
-// Create an OpenAI API client (that's edge friendly!)
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
 
 // And use it like this:
 export async function getOpenAiCompletionWithFuncs(
@@ -42,6 +38,10 @@ export async function getOpenAiCompletionWithFuncs(
   contexts: string[],
   prompt: string,
 ) {
+  const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  })
+
   const content = `
 ${contexts.join('\n\n')}
 
@@ -79,6 +79,10 @@ export async function getOpenAiCompletion(
   prompt: string,
   useFunctions: boolean,
 ) {
+  const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  })
+
   if (useFunctions) {
     return await getOpenAiCompletionWithFuncs(
       modelName,

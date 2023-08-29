@@ -1,21 +1,40 @@
-import { coreExtension, PipelineExtension } from '@/lib/new-pipelines/core/extensions';
+import { PipelineExtension } from '@/lib/new-pipelines/interfaces';
+
+import { extension as coreExtension } from './core';
+import { extension as assemblyAIExtension } from './assemblyai';
+import { extension as openAIExtension } from './openai';
 
 const EXTENSIONS: PipelineExtension[] = [
   coreExtension,
+  assemblyAIExtension,
+  openAIExtension,
 ];
 
+const EXTENSIONS_BY_ID: { [key: string]: PipelineExtension } = EXTENSIONS.reduce(
+  (acc, curr) => ({ ...acc, [curr.id]: curr }),
+  { }
+)
+
+export function getAllExtensions(): PipelineExtension[] {
+  return EXTENSIONS;
+}
+
 export function getExtensions(extensionIds: string[]): PipelineExtension[] {
-  const extensions: PipelineExtension[] = [];
-
-  for (const extensionId of extensionIds) {
-    const extension = getExtension(extensionId);
-    if (extension === null) continue;
-    extensions.push(extension);
-  }
-
-  return extensions;
+  return extensionIds.reduce(
+    (acc, curr) => {
+      const extension = getExtension(curr);
+      return extension ? [ ...acc, extension ] : acc;
+    },
+    [] as PipelineExtension[]
+  )
 }
 
 function getExtension(extensionId: string): PipelineExtension | null {
-  return EXTENSIONS.find(extension => extension.id === extensionId) || null;
+  const extension = EXTENSIONS_BY_ID[extensionId] || null;
+
+  if (extension === null) {
+    console.warn(`No extension found with id "${extensionId}"`)
+  }
+
+  return extension;
 }

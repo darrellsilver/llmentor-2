@@ -1,4 +1,4 @@
-import { NewPipeline } from '@/lib/new-pipelines/core/types';
+import { NewPipeline } from '@/lib/new-pipelines/types';
 import { savePipeline } from '@/lib/new-pipelines/ui/api';
 import { useState } from 'react';
 
@@ -14,7 +14,6 @@ export function usePipelineSaving(
     const result = await savePipeline(pipeline);
     setIsSaving(false);
     onAfterSave(pipeline);
-    console.log(result);
   }
 
   return { isSaving, onSave }

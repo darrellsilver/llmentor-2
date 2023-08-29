@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { getFlowId } from '@/lib/new-pipelines/ui/utils';
-import { NewPipelineNode, PipelineNodeRef } from '@/lib/new-pipelines/core/types';
+import { NewPipelineNode, PipelineNodeRef } from '@/lib/new-pipelines/types';
 
 export type PipelineNodeState = {
   nodesByFlowId: { [key: string]: NewPipelineNode }

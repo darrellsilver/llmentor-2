@@ -1,2 +1,3 @@
-export type { IPipelineNodeExtension } from './IPipelineNodeExtension';
-export type { IPipelineExtension } from './IPipelineExtension';
+export type { IPipelineNodeExtension } from './PipelineNodeExtension';
+export type { IPipelineExtension } from './PipelineExtension';
+export { PipelineExtensionBase, PipelineExtension } from './PipelineExtension';

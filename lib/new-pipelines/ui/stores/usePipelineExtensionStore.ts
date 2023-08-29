@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { PipelineExtension } from '@/lib/new-pipelines/core/extensions';
+import { PipelineExtension } from '@/lib/new-pipelines/interfaces';
 
 export type PipelineExtensionState = {
   extensionsById: { [key: string]: PipelineExtension }

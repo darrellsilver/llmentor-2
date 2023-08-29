@@ -27,7 +27,7 @@ export function useOnConnect(
       // Remove existing edges if multiple refs aren't allowed
       const newEdges = sourceInput.allowMultiple
         ? edges
-        : edges.filter(e => e.source !== edge.source && e.sourceHandle !== edge.sourceHandle);
+        : edges.filter(e => e.source !== edge.source || e.sourceHandle !== edge.sourceHandle);
 
       setEdges(addEdge(edge, newEdges));
     },

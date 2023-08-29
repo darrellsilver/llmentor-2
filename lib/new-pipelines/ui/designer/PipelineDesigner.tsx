@@ -1,12 +1,16 @@
 'use client';
 
-import { NewPipeline } from '@/lib/new-pipelines/core/types';
+import { NewPipeline, NewPipelineExecution } from '@/lib/new-pipelines/types';
 import { useEffect, useState } from 'react';
-import { fetchPipeline, savePipeline } from '@/lib/new-pipelines/ui/api';
+import { fetchPipeline, savePipelineExecution } from '@/lib/new-pipelines/ui/api';
 import { PipelineDesignerFlow } from '@/lib/new-pipelines/ui/designer/pipeline-designer-flow';
-import { executePipeline } from '@/lib/new-pipelines/ui/api/executePipeline';
-import { getPipelineNodes } from '@/lib/new-pipelines/ui/utils';
 import { usePipelineExecution, usePipelineSaving } from '@/lib/new-pipelines/ui/designer/hooks';
+import { IconPulseLoader } from '@/views/analysis-session';
+import { LoaderIcon } from 'lucide-react';
+import { fetchPipelines } from '@/lib/new-pipelines/ui/api/fetchPipelines';
+import { usePipelineStore } from '@/lib/new-pipelines/ui/stores/usePipelineStore';
+
+import { PipelineDesignerSidebar } from './PipelineDesignerSidebar';
 
 type PipelineDesignerProps = {
   pipelineId: string;
@@ -15,36 +19,71 @@ type PipelineDesignerProps = {
 export function PipelineDesigner({
   pipelineId,
 }: PipelineDesignerProps) {
-  const [ pipeline, setPipeline ] = useState<NewPipeline | null>(null);
+  const {
+    getPipelines,
+    getPipeline,
+    setPipeline,
+    setPipelines,
+  } = usePipelineStore(state => ({
+    getPipelines: state.getPipelines,
+    getPipeline: state.getPipeline,
+    setPipeline: state.setPipeline,
+    setPipelines: state.setPipelines,
+  }))
   const [ isExecutorOpen, setIsExecutorOpen ] = useState(false);
   const { isSaving, onSave } = usePipelineSaving(setPipeline)
   const { execution, isExecuting, onExecute } = usePipelineExecution(setPipeline)
 
   useEffect(() => {
-    setPipeline(null);
+    const pipeline = getPipeline(pipelineId);
+    if (pipeline) return;
     fetchPipeline(pipelineId).then(setPipeline);
-  }, [pipelineId])
+  }, [pipelineId, getPipeline, setPipeline])
+
+  useEffect(() => {
+    fetchPipelines().then(setPipelines)
+  }, [setPipelines])
+
+  const pipeline = getPipeline(pipelineId);
 
   function onToggleExecutor() {
     setIsExecutorOpen(!isExecutorOpen);
   }
 
+  function onUpdatePipeline(newPipeline: NewPipeline) {
+    setPipeline(newPipeline)
+  }
+
+  async function onSaveExecution(execution: NewPipelineExecution) {
+    await savePipelineExecution(execution);
+
+    // TODO reflect saved in the ui
+  }
+
   return (
-    <div className="h-full w-full">
-      {pipeline === null ? (
-        <div>Loading...</div>
-      ) : (
-        <PipelineDesignerFlow
-          pipeline={pipeline}
-          onSavePipeline={onSave}
-          isSaving={isSaving}
-          onToggleExecutor={onToggleExecutor}
-          isExecutorOpen={isExecutorOpen}
-          onExecutePipeline={onExecute}
-          execution={execution}
-          isExecuting={isExecuting}
-        />
-      )}
+    <div className="flex h-full w-full">
+      <PipelineDesignerSidebar pipelines={getPipelines()} />
+      <div className="flex-1">
+        {pipeline === null ? (
+          <IconPulseLoader
+            Icon={<LoaderIcon className="animate-spin" />}
+            text="Loading"
+          />
+        ) : (
+          <PipelineDesignerFlow
+            pipeline={pipeline}
+            onUpdatePipeline={onUpdatePipeline}
+            onSavePipeline={onSave}
+            isSaving={isSaving}
+            onToggleExecutor={onToggleExecutor}
+            isExecutorOpen={isExecutorOpen}
+            onExecutePipeline={onExecute}
+            execution={execution}
+            onSaveExecution={onSaveExecution}
+            isExecuting={isExecuting}
+          />
+        )}
+      </div>
     </div>
   )
 }
