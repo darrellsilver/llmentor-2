@@ -32,9 +32,9 @@ export function PipelineRunnerPanel({
     if (isOpen) {
       refreshProperties();
     }
-  }, [isOpen]);
     // @ts-ignore
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen])
 
   function refreshProperties() {
     const propertyNodes = usePipelineNodesStore.getState().getPropertyNodes();
