@@ -7,6 +7,7 @@ export default async function PipelineDesignerEditorPage(
   { params }: { params: { pipelineId: string } }
 ) {
   const pipeline = await getPipeline(params.pipelineId);
+  if (!pipeline) return null
 
   return (
     <div style={{ width: '100%', height: `calc(100vh - 65px)` }}>
