@@ -2,15 +2,25 @@
 
 An AI-powered app to help you tackle any problem.
 
+## Installation
+
+### Redis
+
+```bash
+brew install redis
+```
+
 ## Setup
 
 Install dependencies
+
 ```bash
 npm install  # OR
 pnpm install
 ```
 
 Add your OpenAI API key to .env.local in the project root
+
 ```
 # In .env.local
 OPENAI_API_KEY=sk-...
@@ -19,8 +29,15 @@ ASSEMBLYAI_API_KEY=...
 
 ## Running
 
-Start the app
+Start redis server
+
+```bash
+redis-server
 ```
+
+Start the app
+
+```bash
 npm run dev  # OR
 pnpm dev
 ```
@@ -30,6 +47,7 @@ Go to http://localhost:3000
 ## Tools
 
 ### Transcription Analysis
+
 - Upload an audio file for analysis
 - The file is uploaded to AssemblyAI and transcribed
 - The transcript response is kept in `/data/assemblyai/<file-name>.json`, to avoid re-uploads/transcriptions
