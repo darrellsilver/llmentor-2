@@ -14,28 +14,31 @@ class KVStore {
     }
   }
 
-  set(...args) {
+  set(key: string, value: any) {
     if (this.store) {
-      return this.store.set(...args);
+      return this.store.set(key, value);
     }
   }
 
-  async get(...args) {
+  async get(key: string) {
     if (this.store) {
-      const value = await this.store.get(...args);
+      const value = await this.store.get(key);
       // This is so annoying but VercelKV seems to auto-json-parse values whereas
       // redis does not. Re-stringify objects here so we can handle everything
       // consistently downstream
       if (typeof value === "object") {
         return JSON.stringify(value);
       }
-      return value;
+      if (typeof value === "string") {
+        return value;
+      }
+      return value?.toString() || "";
     }
   }
 
-  async keys(...args) {
+  async keys(pattern: string) {
     if (this.store) {
-      return this.store.keys(...args);
+      return this.store.keys(pattern);
     }
   }
 }
