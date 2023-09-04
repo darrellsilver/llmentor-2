@@ -1,36 +1,41 @@
-import fs from 'fs';
-import path from 'path';
-import { AssemblyAiTranscriptResponse } from '@/lib/assemblyai/types';
+import "server-only";
+import { AssemblyAiTranscriptResponse } from "@/lib/assemblyai/types";
+import KVStore from "@/lib/kvStore";
 
-export async function getCachedResponse(id: string): Promise<AssemblyAiTranscriptResponse | null> {
-  const cachedResponsePath = getCachedResponsePath(id);
+export async function getCachedResponse(
+  id: string
+): Promise<AssemblyAiTranscriptResponse | null> {
+  const cachedResponseKey = getCachedResponseKey(id);
+  const response: string = (await KVStore.get(cachedResponseKey)) || "";
 
-  if (!fs.existsSync(cachedResponsePath)) {
-    return null;
+  if (response) {
+    return JSON.parse(response);
   }
 
-  return await JSON.parse(fs.readFileSync(cachedResponsePath, 'utf-8'));
+  return null;
 }
 
 export async function cacheResponse(
   id: string,
   response: AssemblyAiTranscriptResponse
 ): Promise<AssemblyAiTranscriptResponse> {
-  const cachedResponsePath = getCachedResponsePath(id);
-  fs.writeFileSync(cachedResponsePath, JSON.stringify(response));
+  const cachedResponseKey = getCachedResponseKey(id);
+  await KVStore.set(cachedResponseKey, JSON.stringify(response));
+
   return response;
 }
 
 export async function getCachedResponsePaths(): Promise<string[]> {
-  const dataDir = getDataDir();
-  return fs.readdirSync(dataDir);
+  const namespace = getNamespace();
+  const keys = await KVStore.keys(`${namespace}:*`);
+  return keys?.map((key) => key.replace(`${namespace}:`, "")) || [];
 }
 
-function getCachedResponsePath(id: string): string {
-  const dataDir = getDataDir()
-  return `${dataDir}/${id.split('.')[0]}.json`
+function getCachedResponseKey(id: string): string {
+  const namespace = getNamespace();
+  return `${namespace}:${id.split(".")[0]}`;
 }
 
-function getDataDir() {
-  return path.resolve(process.cwd(), 'data/assemblyai');
+function getNamespace() {
+  return "data:assemblyai";
 }
