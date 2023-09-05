@@ -20,10 +20,16 @@ export default function IndexPage() {
         </h2>
         <div className="mt-4">
           <Link
-            href="/pipeline-designer"
+            href="/new-pipelines/bde5cc31-4017-4d84-91e4-2f6c9dc0000e"
             className={buttonVariants({ variant: 'default' })}
           >
-            Pipeline Designer
+            New Pipeline Designer
+          </Link>
+          <Link
+            href="/pipeline-designer"
+            className={buttonVariants({ variant: 'secondary', className: "ml-2" })}
+          >
+            Legacy Pipeline Designer
           </Link>
         </div>
       </div>

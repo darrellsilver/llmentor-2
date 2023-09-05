@@ -77,6 +77,7 @@ export function PipelineEditorTopbar({
       data: {
         type: nodeType,
         id: nodeId,
+        name: 'Result',
         position: nodePosition,
         inputReference: null,
       }

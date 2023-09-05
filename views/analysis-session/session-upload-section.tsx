@@ -7,7 +7,7 @@ import { MessageSquare } from 'lucide-react';
 import { AssemblyAiTranscriptResponse } from '@/lib/assemblyai/types';
 import { IconPulseLoader } from '@/views/analysis-session/icon-pulse-loader';
 import { TranscriptUtterances } from '@/views/analysis-session/transcript-utterances';
-import { CenteredMutedMessage } from '@/views/analysis-session/centered-muted-message';
+import { CenteredMessage } from '@/views/analysis-session/centered-message';
 
 interface SessionUploadSectionProps {
   onResultTextChange: (result: string) => void;
@@ -97,12 +97,12 @@ export function SessionUploadSection({
           />
         )}
         {status === WorkflowStatus.Running && (
-          <IconPulseLoader Icon={MessageSquare} text="Transcribing" />
+          <IconPulseLoader Icon={<MessageSquare />} text="Transcribing" />
         )}
         {status === WorkflowStatus.Error && (
-          <CenteredMutedMessage>
+          <CenteredMessage>
             An Error Occurred
-          </CenteredMutedMessage>
+          </CenteredMessage>
         )}
         {status === WorkflowStatus.Complete && result && result.utterances && (
           <TranscriptUtterances utterances={result.utterances} />

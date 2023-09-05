@@ -7,7 +7,7 @@ import {
   PipelineNode,
   PipelineNodeRunnable,
   PipelineProperty,
-  PipelineRunnable,
+  PipelineRunnable, PipelineRunnableOutput,
   TextNode, TextProperty,
   TranscriptNode, TranscriptProperty
 } from '@/lib/pipelines/types';
@@ -22,27 +22,48 @@ export async function runPipeline(pipeline: Pipeline, properties: PipelineProper
 
   // Start at the output node
   const outputNode = currentPipeline.nodes.find(n => n.type === 'OutputNode');
+  const outputNodes = currentPipeline.nodes
+    .filter(n => n.type === 'OutputNode')
+    .sort((a, b) => a.position.y - b.position.y);
 
-  if (!outputNode) {
+  if (!outputNodes) {
     return {
       pipeline,
       status: 'error',
-      message: 'No OutputNode found',
+      message: 'No Output nodes found',
     }
   }
 
   const nodeResults: PipelineNodeRunnable[] = []
-  const result = await runPipelineNode(outputNode, nodeResults);
 
-  return result.status === 'success' ? {
+  let errorMessage = '';
+  let outputs: PipelineRunnableOutput[] = [];
+  for (const outputNode of outputNodes) {
+    const result = await runPipelineNode(outputNode, nodeResults);
+    if (result.status === 'error') {
+      errorMessage = result.message;
+      break;
+    }
+
+    outputs.push({
+      name: outputNode.name || 'Result',
+      value: result.result,
+      format: 'markdown',
+    });
+  }
+
+  const result = outputs.map(output => output.value).join('\n\n');
+
+  return !errorMessage ? {
     pipeline,
     status: 'success',
     nodeResults,
-    result: result.result,
+    result,
+    outputs,
   } : {
     pipeline,
     status: 'error',
-    message: result.status === 'error' ? result.message : 'Unknown error',
+    message: errorMessage,
   };
 }
 
@@ -231,17 +252,19 @@ async function runOpenAiNode(
 
   console.log(`Total length: ${totalLength}. Using model "${modelName}"`);
 
+  const useFunctions = false;
   const openAiResult = await getOpenAiCompletion(
     modelName,
     node.temperature,
     contexts,
-    promptResult.result
+    promptResult.result,
+    useFunctions,
   );
 
   const result: PipelineNodeRunnable = {
     node,
     status: 'success',
-    result: openAiResult,
+    result: openAiResult || '',
   };
 
   nodeResults.push(result);

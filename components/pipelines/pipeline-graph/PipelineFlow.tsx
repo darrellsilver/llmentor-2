@@ -17,7 +17,13 @@ import ReactFlow, {
 
 import 'reactflow/dist/style.css';
 import { nodeTypes } from '@/components/pipelines/pipeline-graph/nodes';
-import { Pipeline, PipelineNode, PipelineProperty, PipelineRunnable } from '@/lib/pipelines/types';
+import {
+  Pipeline,
+  PipelineNode,
+  PipelineProperty,
+  PipelineRunnable,
+  PipelineRunnableOutput
+} from '@/lib/pipelines/types';
 import {
   getFlowDataFromPipelineNodes,
   getPipelineNodesFromFlowData
@@ -58,6 +64,7 @@ export function PipelineFlow({
   const [ isRunnerOpen, setIsRunnerOpen ] = useState(false);
   const [ runningStatus, setRunningStatus ] = useState<RunningStatus>('inactive')
   const [ runResult, setRunResult ] = useState('')
+  const [ runOutputs, setRunOutputs ] = useState<PipelineRunnableOutput[]>([]);
 
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
@@ -139,6 +146,7 @@ export function PipelineFlow({
 
     if (response.status === 'success') {
       setRunResult(response.result);
+      setRunOutputs(response.outputs);
       setRunningStatus('success');
     } else {
       setRunResult(response.message);
@@ -184,6 +192,7 @@ export function PipelineFlow({
           pipeline={currentPipeline}
           status={runningStatus}
           result={runResult}
+          outputs={runOutputs}
           onRun={onRun}
         />
 

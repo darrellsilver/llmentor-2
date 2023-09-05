@@ -3,6 +3,6 @@ import { NextResponse } from 'next/server';
 
 export async function POST() {
   const transcriptIds = await getTranscriptIds()
-  const transcripts = transcriptIds.map(id => ({ id }));
+  const transcripts = transcriptIds.map(id => ({ id, name: id }));
   return NextResponse.json({ transcripts });
 }
