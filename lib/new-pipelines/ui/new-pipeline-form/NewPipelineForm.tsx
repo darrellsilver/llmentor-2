@@ -41,7 +41,7 @@ export function NewPipelineForm() {
     const pipeline = await createNewPipeline(
       title,
       description,
-      ['core', 'openai']
+      ['core', 'assemblyai', 'openai']
     );
 
     router.push(`/new-pipelines/${pipeline.id}`);
