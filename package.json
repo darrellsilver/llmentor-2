@@ -34,6 +34,7 @@
     "class-variance-authority": "^0.4.0",
     "clsx": "^1.2.1",
     "cohere-ai": "^5.1.0",
+    "encoding": "^0.1.13",
     "epub2": "^3.0.1",
     "hnswlib-node": "^1.4.2",
     "html-to-text": "^9.0.5",
