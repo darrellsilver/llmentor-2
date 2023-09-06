@@ -1,7 +1,6 @@
 import { ClientPipeline, NodeType, Pipeline, PipelineNode, PipelineProperty } from '@/lib/pipelines/types';
 import path from 'path';
 import fs from 'fs';
-import { pipe } from 'next/dist/build/webpack/config/utils';
 
 export async function getClientPipeline(pipelineId: string, directory: string = 'pipelines'): Promise<ClientPipeline | null> {
   const pipeline = await getPipeline(pipelineId, directory);

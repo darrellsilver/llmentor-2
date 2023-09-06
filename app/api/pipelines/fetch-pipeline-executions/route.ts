@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getPipelines } from '@/lib/pipelines/storage';
-import { NewPipelineExecution } from '@/lib/new-pipelines/types';
-import { saveExecution } from '@/lib/new-pipelines/storage/executions/saveExecution';
-import { getSavedExecutions } from '@/lib/new-pipelines/storage/executions/getSavedExecutions';
+import { getSavedExecutions } from '@/lib/new-pipelines/storage';
 
 export async function POST(req: NextRequest) {
   const { pipelineId }: { pipelineId: string } = await req.json();
