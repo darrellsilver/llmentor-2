@@ -1,8 +1,8 @@
-import { NewPipelineForm } from '@/lib/new-pipelines/ui/new-pipeline-form/NewPipelineForm';
+import { NewPipelineForm } from '@/lib/new-pipelines/ui/new-pipeline-form';
 
 export default function NewPipelinePage() {
   return (
-    <div className="flex items-center justify-center w-full h-full">
+    <div className="flex h-full w-full items-center justify-center">
       <NewPipelineForm />
     </div>
   )
