@@ -23,6 +23,7 @@ class KVStore {
   async get(key: string) {
     if (this.store) {
       const value = await this.store.get(key);
+      if (!value) return "";
       // This is so annoying but VercelKV seems to auto-json-parse values whereas
       // redis does not. Re-stringify objects here so we can handle everything
       // consistently downstream
