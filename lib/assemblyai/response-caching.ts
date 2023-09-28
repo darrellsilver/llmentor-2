@@ -6,9 +6,19 @@ import KVStore from "@/lib/kvStore";
 
 export async function getCachedResponse(
   fileName: string,
-  deviceId: string
+  deviceId: string | undefined
 ): Promise<AssemblyAiTranscriptResponse | null> {
-  const cachedResponseKey = getCachedResponseKey(fileName, deviceId);
+  let cachedResponseKey;
+  if (!deviceId) {
+    const cachedResponseKeys =
+      (await KVStore.keys(`data:assemblyai:*:filename`)) || [];
+    cachedResponseKey = cachedResponseKeys[0];
+  } else {
+    cachedResponseKey = getCachedResponseKey(fileName, deviceId);
+  }
+
+  if (!cachedResponseKey) return null;
+
   const response: string = (await KVStore.get(cachedResponseKey)) || "";
 
   if (response) {
