@@ -25,11 +25,17 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "No file name" });
   }
 
-  const session = await fetchTranscription(id);
-
-  await cacheResponse(fileName, deviceId, session);
-
-  return NextResponse.json(session);
+  try {
+    const response = await fetchTranscription(id);
+    const result = await cacheResponse(fileName, deviceId, response);
+    return NextResponse.json(result);
+  } catch (err) {
+    return NextResponse.json({
+      error:
+        err?.response?.data?.error ||
+        "Error fetching transcription from Assembly API",
+    });
+  }
 }
 
 export async function POST(req: NextRequest) {

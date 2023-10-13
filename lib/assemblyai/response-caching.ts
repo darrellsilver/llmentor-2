@@ -32,13 +32,10 @@ export async function cacheResponse(
   fileName: string,
   deviceId: string,
   response: AssemblyAiTranscriptResponse
-): Promise<AssemblyAiTranscriptResponse> {
-  const cachedResponseKey = getCachedResponseKey(fileName, deviceId);
-
-  await KVStore.set(cachedResponseKey, JSON.stringify(response));
-
-  const cachedData = await KVStore.get(`${deviceId}:${fileName}`);
-  const existing = JSON.parse(cachedData || "{}");
+) {
+  const existing = JSON.parse(
+    (await KVStore.get(`${deviceId}:${fileName}`)) || "{}"
+  );
 
   let speakerAliases = existing?.speakerAliases;
   if (!speakerAliases && response?.utterances?.length) {
@@ -51,16 +48,18 @@ export async function cacheResponse(
       isUser: false,
     }));
   }
-  await KVStore.set(
-    `${deviceId}:${fileName}`,
-    JSON.stringify({
-      fileName,
-      createdAt: existing?.createdAt || new Date().toISOString(),
-      speakerAliases,
-    })
-  );
 
-  return response;
+  const transcriptData = {
+    fileName,
+    createdAt: existing?.createdAt || new Date().toISOString(),
+    speakerAliases,
+    status: response.status,
+    id: response.id,
+    utterances: response.utterances,
+  };
+  await KVStore.set(`${deviceId}:${fileName}`, JSON.stringify(transcriptData));
+
+  return transcriptData;
 }
 
 export async function getCachedResponsePaths(): Promise<string[]> {

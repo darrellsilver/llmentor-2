@@ -28,12 +28,9 @@ export async function startTranscriptionForFile(
   file: File,
   expectedSpeakers: number
 ): Promise<AssemblyAiTranscriptResponse> {
-  // Check the cache
-  let cachedResponse = await getRefreshedCacheResponse(fileName, deviceId);
-  if (cachedResponse) {
-    return cachedResponse;
-  }
-
+  console.log(
+    `[startTranscriptionForFile] Starting transcription for file ${fileName}`
+  );
   // Upload the file to AssemblyAI
   const fileUploadResponse = await uploadFile(file);
 
@@ -67,12 +64,6 @@ export async function startTranscription(
   fileUrl: string,
   speakersExpected: number
 ): Promise<AssemblyAiTranscriptResponse> {
-  // Check the cache
-  let cachedResponse = await getRefreshedCacheResponse(fileName, deviceId);
-  if (cachedResponse) {
-    return cachedResponse;
-  }
-
   const data: AssemblyAiTranscriptRequest = {
     audio_url: fileUrl,
     speaker_labels: true,
@@ -88,28 +79,7 @@ export async function startTranscription(
   const response = await axios.post(TRANSCRIPT_ENDPOINT, data, config);
 
   // Cache the response, so we don't request another transcription of the same object
-  await cacheResponse(fileName, deviceId, response.data);
-
-  return response.data;
-}
-
-async function getRefreshedCacheResponse(
-  fileName: string,
-  deviceId: string
-): Promise<AssemblyAiTranscriptResponse | null> {
-  let cachedResponse = await getCachedResponse(fileName, deviceId);
-  if (cachedResponse) {
-    // Refresh the cache if still pending
-    if (
-      cachedResponse.status === "queued" ||
-      cachedResponse.status === "processing"
-    ) {
-      console.log("[getRefreshedCacheResponse] Cache response refreshing");
-      cachedResponse = await fetchTranscription(cachedResponse.id);
-      await cacheResponse(fileName, deviceId, cachedResponse);
-    }
-  }
-  return cachedResponse;
+  return cacheResponse(fileName, deviceId, response.data);
 }
 
 export async function fetchTranscription(

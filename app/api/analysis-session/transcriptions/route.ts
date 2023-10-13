@@ -17,17 +17,8 @@ export async function GET(req: NextRequest) {
   const transcriptions = [];
   for (const key of transcriptionKeys) {
     const transcriptionMetaRaw = await KVStore.get(key);
-    const transcriptionAAIResponseRaw = await KVStore.get(
-      `data:assemblyai:${key}`
-    );
     const transcriptionMeta = JSON.parse(transcriptionMetaRaw || "{}");
-    const transcriptionAAIResponse = JSON.parse(
-      transcriptionAAIResponseRaw || "{}"
-    );
-    transcriptions.push({
-      ...transcriptionMeta,
-      utterances: transcriptionAAIResponse.utterances,
-    });
+    transcriptions.push(transcriptionMeta);
   }
 
   return NextResponse.json({ transcriptions });
