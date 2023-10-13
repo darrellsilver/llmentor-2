@@ -79,6 +79,7 @@ export async function startTranscription(
   const response = await axios.post(TRANSCRIPT_ENDPOINT, data, config);
 
   // Cache the response, so we don't request another transcription of the same object
+  // @ts-ignore
   return cacheResponse(fileName, deviceId, response.data);
 }
 
