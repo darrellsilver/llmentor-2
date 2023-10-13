@@ -32,6 +32,7 @@ export async function GET(req: NextRequest) {
   } catch (err) {
     return NextResponse.json({
       error:
+        // @ts-ignore
         err?.response?.data?.error ||
         "Error fetching transcription from Assembly API",
     });
