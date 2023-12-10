@@ -28,8 +28,22 @@ export async function GET(req: NextRequest) {
   try {
     const response = await fetchTranscription(id);
     const result = await cacheResponse(fileName, deviceId, response);
+    console.log("***GET: result");
+    try {
+      console.log(JSON.stringify(result, null, 2));
+    } catch (err) {
+      console.log("***GET: bad JSON");
+      console.log(result);
+    }
     return NextResponse.json(result);
   } catch (err) {
+    console.log("***GET: error!");
+    console.log(err);
+    try {
+      console.log(JSON.stringify(err, null, 2));
+    } catch (err) {
+      console.log("***GET: bad JSON");
+    }
     return NextResponse.json({
       error:
         // @ts-ignore
@@ -65,5 +79,12 @@ export async function POST(req: NextRequest) {
           expectedSpeakers
         );
 
+  console.log("***POST: response");
+  try {
+    console.log(JSON.stringify(response, null, 2));
+  } catch (err) {
+    console.log("***POST: bad JSON");
+    console.log(response);
+  }
   return NextResponse.json(response);
 }
