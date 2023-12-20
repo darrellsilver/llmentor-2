@@ -18,6 +18,8 @@ export async function GET(req: NextRequest) {
   const transcriptions = [];
   for (const key of transcriptionKeys) {
     const transcriptionMetaRaw = await KVStore.get(key);
+    console.log(`***KEY ${key}`);
+    console.log(`***transcriptionMetaRaw: ${transcriptionMetaRaw}`);
     const transcriptionMeta = JSON.parse(transcriptionMetaRaw || "{}");
     transcriptions.push(transcriptionMeta);
   }
