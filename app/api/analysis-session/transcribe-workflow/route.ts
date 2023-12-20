@@ -9,6 +9,7 @@ import {
 } from "@/lib/assemblyai/transcription";
 
 export async function GET(req: NextRequest) {
+  console.log("***GET /transcribe-workflow");
   const id = req.nextUrl.searchParams.get("id");
   const deviceId = req.nextUrl.searchParams.get("deviceId");
   const fileName = req.nextUrl.searchParams.get("fileName");
@@ -54,6 +55,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  console.log("***POST /transcribe-workflow");
   const formData = await req.formData();
   const file = formData.get("file") as File;
   const deviceId = formData.get("deviceId") as string;

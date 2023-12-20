@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import KVStore from "@/lib/kvStore";
 
 export async function GET(req: NextRequest) {
+  console.log("***GET /transcriptions");
   const deviceId = req.nextUrl.searchParams.get("deviceId");
 
   if (!deviceId) {
